@@ -66,51 +66,31 @@ public class ChessPiece {
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> bishopMoves = new HashSet<>();
         //List<ChessMove> bishopMoves = new ArrayList<>();
-        final int up = 8;
-        final int down = 0;
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+
         class Helper {
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            void checkPosition(int aDirection, int bDirection) {
-                row = myPosition.getRow();
-                col = myPosition.getColumn();
-                while (row < aDirection && col < bDirection) {
-                    row += (aDirection == up ? 1 : -1);
-                    col += (bDirection == up ? 1 : -1);
-                    ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-                    if (newPosition == null) {
-                        bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                    } else if (newPosition.pieceColor != pieceColor) {
-                        bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                        break; // Stop the loop if you captured an opposing piece
-                    } else {
-                        break; // Stop the loop if a same-color piece is blocking the path
-                    }
+            boolean checkPosition(int checkRow, int checkCol) {
+                ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
+                if (newPosition == null) {
+                    bishopMoves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
+                } else if (newPosition.pieceColor != pieceColor) {
+                    bishopMoves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
+                    return false;
+                } else {
+                    return false;
                 }
+                return true;
             }
         }
+
         Helper helper = new Helper();
-        helper.checkPosition(up, up);
-        helper.checkPosition(down, up);
-        helper.checkPosition(up, down);
-        helper.checkPosition(down, down);
 
-
-/*
         while (row < 8 && col < 8) {
             row++;
             col++;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (newPosition == null) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-            } else if (newPosition.pieceColor != pieceColor) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                break; // Stop the loop if you captured an opposing piece
-            } else {
-                break; // Stop the loop if a same-color piece is blocking the path
-            }
-            //if (newPosition == null || newPosition.pieceColor !=  pieceColor)
-              //  bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            if (!helper.checkPosition(row, col)) {break;}
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -118,14 +98,7 @@ public class ChessPiece {
             row--;
             col++;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (newPosition == null) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-            } else if (newPosition.pieceColor != pieceColor) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                break; // Stop the loop if you captured an opposing piece
-            } else {
-                break; // Stop the loop if a same-color piece is blocking the path
-            }
+            if (!helper.checkPosition(row, col)) {break;}
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -133,14 +106,7 @@ public class ChessPiece {
             row++;
             col--;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (newPosition == null) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-            } else if (newPosition.pieceColor != pieceColor) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                break; // Stop the loop if you captured an opposing piece
-            } else {
-                break; // Stop the loop if a same-color piece is blocking the path
-            }
+            if (!helper.checkPosition(row, col)) {break;}
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -148,15 +114,8 @@ public class ChessPiece {
             row--;
             col--;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (newPosition == null) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-            } else if (newPosition.pieceColor != pieceColor) {
-                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
-                break; // Stop the loop if you captured an opposing piece
-            } else {
-                break; // Stop the loop if a same-color piece is blocking the path
-            }
-        }*/
+            if (!helper.checkPosition(row, col)) {break;}
+        }
 
         return bishopMoves;
     }
