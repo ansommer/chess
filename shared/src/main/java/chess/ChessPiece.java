@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class ChessPiece {
 
+    // Maybe I need to override the equals function. That sounds kind right. So let's check with a TA. Yeah...
+
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
 
@@ -56,12 +58,12 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        Collection<ChessMove> moves  = new HashSet<ChessMove>();
+        Collection<ChessMove> moves  = new HashSet<>();
         if (piece.getPieceType() == PieceType.BISHOP) {
             moves = bishopMoves(board, myPosition);
         }
         return moves;
-    };
+    }
 
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> bishopMoves = new HashSet<>();
