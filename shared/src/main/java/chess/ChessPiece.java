@@ -65,32 +65,44 @@ public class ChessPiece {
 
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> bishopMoves = new HashSet<>();
+        //List<ChessMove> bishopMoves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         while (row < 8 && col < 8) {
             row++;
             col++;
-            //write some kind of if to capture a piece
-            bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
+            if (newPosition == null || newPosition.pieceColor !=  pieceColor)
+                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
         }
-        while (row > 0 && col < 8) {
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (row > 1 && col < 8) {
             row--;
             col++;
-            //write some kind of if to capture a piece
-            bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
+            if (newPosition == null || newPosition.pieceColor !=  pieceColor)
+                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
         }
-        while (row < 8 && col > 0) {
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (row < 8 && col > 1) {
             row++;
             col--;
-            //write some kind of if to capture a piece
-            bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
+            if (newPosition == null || newPosition.pieceColor !=  pieceColor)
+                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
         }
-        while (row > 0 && col > 0) {
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (row > 1 && col > 1) {
             row--;
             col--;
-            //write some kind of if to capture a piece
-            bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
+            if (newPosition == null || newPosition.pieceColor !=  pieceColor)
+                bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
         }
+
         return bishopMoves;
     }
 }
