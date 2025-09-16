@@ -14,6 +14,19 @@ import java.util.List;
 public class ChessPiece {
 
     // Maybe I need to override the equals function. That sounds kind right. So let's check with a TA. Yeah...
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece piece = (ChessPiece) o;
+        return (pieceColor == piece.pieceColor && type == piece.type);
+    }
+
+    //alright I think it's correct but I wanna understand it more
+    @Override
+    public int hashCode() {
+        return (71 * pieceColor.hashCode()) + type.hashCode();
+    }
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
@@ -22,6 +35,8 @@ public class ChessPiece {
         this.pieceColor = pieceColor;
         this.type = type;
     }
+
+    //Need to ask about the hashCode
 
     /**
      * The various different chess piece options
@@ -58,7 +73,8 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        Collection<ChessMove> moves  = new HashSet<>();
+        //Collection<ChessMove> moves  = new HashSet<>();
+        Collection<ChessMove> moves  = new ArrayList<>();
         if (piece.getPieceType() == PieceType.BISHOP) {
             moves = bishopMoves(board, myPosition);
         }

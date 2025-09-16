@@ -8,6 +8,24 @@ package chess;
  */
 public class ChessPosition {
 
+    @Override
+    public String toString() {
+        return String.format("[%d,%d]", row, col);
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPosition position = (ChessPosition) o;
+        return (row == position.row && col == position.col);
+    }
+
+    @Override
+    public int hashCode() {
+        return (71 * row) + col;
+    } //figure out why we don't use the hashcode here
+
+
     private final int row;
     private final int col;
 
@@ -32,8 +50,5 @@ public class ChessPosition {
         return col;
     }
 
-    @Override
-    public String toString() {
-        return String.format("[%d,%d]", row, col);
-    }
+
 }

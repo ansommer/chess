@@ -14,7 +14,7 @@ public class ChessMove {
         if (o == null || getClass() != o.getClass()) return false;
         ChessMove move = (ChessMove) o;
         return (startPosition.equals(move.startPosition) && endPosition.equals(move.endPosition)
-                && promotionPiece == move.promotionPiece);
+                && promotionPiece == move.promotionPiece); //we have to call the equals of those classes! because they aren't just regular variables!!
     }
 
     @Override
@@ -24,6 +24,7 @@ public class ChessMove {
         return (71 * startPosition.hashCode()) + endPosition.hashCode() + promotionCode;
     }
 
+    //ok understand equals. moderatly hashcode. but why are we overriding the toString??
     @Override
     public String toString() {
         var p = (promotionPiece == null ? "" : ":" + promotionPiece);
