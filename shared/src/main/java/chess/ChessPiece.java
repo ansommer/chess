@@ -74,11 +74,26 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         //Collection<ChessMove> moves  = new HashSet<>();
-        Collection<ChessMove> moves  = new ArrayList<>();
+        Collection<ChessMove> moves = new ArrayList<>();
         if (piece.getPieceType() == PieceType.BISHOP) {
             moves = bishopMoves(board, myPosition);
+        } else if (piece.getPieceType() == PieceType.KING) {
+            //moves = kingMoves(board, myPosition);
         }
         return moves;
+    }
+
+    public boolean checkPosition(ChessBoard board, ChessPosition myPosition, int checkRow, int checkCol, HashSet<ChessMove> moves) {
+        ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
+        if (newPosition == null) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
+        } else if (newPosition.pieceColor != pieceColor) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
+            return true;
+        } else {
+            return true;
+        }
+        return false;
     }
 
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
@@ -87,28 +102,13 @@ public class ChessPiece {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
 
-        class Helper {
-            boolean checkPosition(int checkRow, int checkCol) {
-                ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
-                if (newPosition == null) {
-                    bishopMoves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
-                } else if (newPosition.pieceColor != pieceColor) {
-                    bishopMoves.add(new ChessMove(myPosition, new ChessPosition(checkRow, checkCol), null));
-                    return false;
-                } else {
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        Helper helper = new Helper();
-
         while (row < 8 && col < 8) {
             row++;
             col++;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (!helper.checkPosition(row, col)) {break;}
+            if (checkPosition(board, myPosition, row, col, bishopMoves)) {
+                break;
+            }
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -116,7 +116,9 @@ public class ChessPiece {
             row--;
             col++;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (!helper.checkPosition(row, col)) {break;}
+            if (checkPosition(board, myPosition, row, col, bishopMoves)) {
+                break;
+            }
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -124,7 +126,9 @@ public class ChessPiece {
             row++;
             col--;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (!helper.checkPosition(row, col)) {break;}
+            if (checkPosition(board, myPosition, row, col, bishopMoves)) {
+                break;
+            }
         }
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -132,9 +136,21 @@ public class ChessPiece {
             row--;
             col--;
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
-            if (!helper.checkPosition(row, col)) {break;}
+            if (checkPosition(board, myPosition, row, col, bishopMoves)) {
+                break;
+            }
         }
 
         return bishopMoves;
     }
+
+    /*public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> kingMoves = new HashSet<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+
+        //ok just finish this yep
+
+    }*/
+
 }
