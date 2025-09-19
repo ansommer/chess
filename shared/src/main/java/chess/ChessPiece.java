@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import static chess.ChessPiece.PieceType.ROOK;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -90,19 +92,21 @@ public class ChessPiece {
             Collection<ChessMove> rookMovesSet = rookMoves(board, myPosition);
             moves.addAll(rookMovesSet);
         }
-        else if (piece.getPieceType() == PieceType.ROOK) {
+        else if (piece.getPieceType() == ROOK) {
             moves = rookMoves(board, myPosition);
         }
         return moves;
     }
 
-    public boolean checkPosition(ChessBoard board, ChessPosition myPosition, int checkRow, int checkCol) {
+    public boolean checkPosition(ChessBoard board, int checkRow, int checkCol) {
         if (checkRow > 0 && checkRow <= 8 && checkCol > 0 && checkCol <= 8) {
             ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
             return newPosition == null || newPosition.pieceColor != pieceColor;
         }
         return false;
     }
+
+
 
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> bishopMoves = new HashSet<>();
@@ -113,7 +117,7 @@ public class ChessPiece {
        while (row < 8 && col < 8) {
             row++;
             col++;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
            ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -124,7 +128,7 @@ public class ChessPiece {
         while (row > 1 && col < 8) {
             row--;
             col++;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null)); //maybe this goes outside? confused
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -135,7 +139,7 @@ public class ChessPiece {
         while (row < 8 && col > 1) {
             row++;
             col--;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -146,7 +150,7 @@ public class ChessPiece {
         while (row > 1 && col > 1) {
             row--;
             col--;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 bishopMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -173,7 +177,7 @@ public class ChessPiece {
         for (ChessPosition x : possibilities) {
             int xrow = x.getRow();
             int xcol = x.getColumn();
-            if (checkPosition(board, myPosition, xrow, xcol)) {
+            if (checkPosition(board, xrow, xcol)) {
                 kingMoves.add(new ChessMove(myPosition, new ChessPosition(xrow, xcol), null));
             }
 
@@ -199,7 +203,7 @@ public class ChessPiece {
         for (ChessPosition x : possibilities) {
             int xrow = x.getRow();
             int xcol = x.getColumn();
-            if (checkPosition(board, myPosition, xrow, xcol)) {
+            if (checkPosition(board, xrow, xcol)) {
                 knightMoves.add(new ChessMove(myPosition, new ChessPosition(xrow, xcol), null));
             }
         }
@@ -207,10 +211,27 @@ public class ChessPiece {
         return knightMoves;
     }
 
+    public boolean checkPawnCapture(ChessBoard board, int checkRow, int checkCol) {
+        if (checkRow > 0 && checkRow <= 8 && checkCol > 0 && checkCol <= 8) {
+            ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
+            return newPosition != null && newPosition.pieceColor != pieceColor;
+        }
+        return false;
+    }
+
+    public void checkPromotion(ChessPosition myPosition, int newRow, int newCol, HashSet<ChessMove> pawnMoves) {
+        if (newRow == 8 || newRow == 1) {
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), PieceType.QUEEN));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), PieceType.BISHOP));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), PieceType.KNIGHT));
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), ROOK));
+        } else {
+            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(newRow, newCol), null));
+        }
+    }
+
     public Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
-        //ok idk if I have to see if it's their first move and they can move 2x or promote also
         HashSet<ChessMove> pawnMoves = new HashSet<>();
-//        HashSet<ChessPosition> possibilities = new HashSet<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece piece = board.getPiece(myPosition);
@@ -218,46 +239,44 @@ public class ChessPiece {
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             ChessPiece newPosition = board.getPiece(new ChessPosition(row+1, col));
             if (newPosition == null) {
-                pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row+1, col), null));
-            }
-            if (col == 1) {
-                newPosition = board.getPiece(new ChessPosition(row+2, col));
-                if (newPosition == null) {
-                    pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row+2, col), null));
+                checkPromotion(myPosition, row+1, col, pawnMoves);
+                if (row == 2) { //for a starting pawn
+                    newPosition = board.getPiece(new ChessPosition(row+2, col));
+                    if (newPosition == null) {
+                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row+2, col), null));
+                    }
                 }
             }
-            newPosition = board.getPiece(new ChessPosition(row+1, col+1));
-            if (newPosition != null) {checkPosition(board, myPosition, row+1, col+1);}
-            newPosition = board.getPiece(new ChessPosition(row+1, col-1));
-            if (newPosition != null) {checkPosition(board, myPosition, row+1, col-1);}
+
+            if (checkPawnCapture(board, row+1, col+1)) {
+                checkPromotion(myPosition, row+1, col+1, pawnMoves);
+            }
+            if (checkPawnCapture(board, row+1, col-1)) {
+                checkPromotion(myPosition, row+1, col-1, pawnMoves);
+            }
+
         } else { //Black
             ChessPiece newPosition = board.getPiece(new ChessPosition(row-1, col));
             if (newPosition == null) {
-                pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row-1, col), null));
-            }
-            if (col == 1) {
-                newPosition = board.getPiece(new ChessPosition(row-2, col));
-                if (newPosition == null) {
-                    pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row-2, col), null));
+                checkPromotion(myPosition, row-1, col, pawnMoves);
+                if (row == 7) {
+                    newPosition = board.getPiece(new ChessPosition(row-2, col));
+                    if (newPosition == null) {
+                        pawnMoves.add(new ChessMove(myPosition, new ChessPosition(row-2, col), null));
+                    }
                 }
             }
-            newPosition = board.getPiece(new ChessPosition(row-1, col+1));
-            if (newPosition != null) {checkPosition(board, myPosition, row-1, col+1);}
-            newPosition = board.getPiece(new ChessPosition(row-1, col-1));
-            if (newPosition != null) {checkPosition(board, myPosition, row-1, col-1);}
+            if (checkPawnCapture(board, row-1, col+1)) {
+                checkPromotion(myPosition, row-1, col+1, pawnMoves);
+            }
+            if (checkPawnCapture(board, row-1, col-1)) {
+                checkPromotion(myPosition, row-1, col-1, pawnMoves);
+            }
         }
 
         return pawnMoves;
 
     }
-
-    /*public Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
-        HashSet<ChessMove> queenMoves = new HashSet<>();
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        queenMoves = bishopMoves(board, myPosition);
-        return queenMoves;
-    }*/
 
     public Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> rookMoves = new HashSet<>();
@@ -266,7 +285,7 @@ public class ChessPiece {
 
         while (row < 8) {
             row++;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 rookMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -276,7 +295,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (row > 1) {
             row--;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 rookMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -286,7 +305,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col < 8) {
             col++;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 rookMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
@@ -296,7 +315,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col > 1) {
             col--;
-            if (checkPosition(board, myPosition, row, col)) {
+            if (checkPosition(board, row, col)) {
                 rookMoves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
             }
             ChessPiece newPosition = board.getPiece(new ChessPosition(row, col));
