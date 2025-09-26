@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Collection;
 
+import static chess.ChessPiece.PieceType.KING;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -85,7 +87,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //so I didn't actually use teamColor.... maybe come back to that
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null) {
+                    Collection<ChessMove> validMoves = validMoves(position);
+                    for (ChessMove x : validMoves) {
+                        ChessPiece maybeKing = board.getPiece(x.getEndPosition());
+                        if (maybeKing.getPieceType() == KING && piece.getTeamColor() != maybeKing.getTeamColor()) {
+                            return true;
+                        }
+                    }
+                }
+
+            }
+        }
+        return false;
     }
 
     /**
