@@ -11,6 +11,10 @@ import java.util.Collection;
 public class ChessGame {
 
     private TeamColor team;
+    private ChessBoard board; //actually do I need to do something with this? How does it know what the board is?
+
+    //need to make the equals and hashcode
+
     public ChessGame() {
         team = TeamColor.WHITE;
     }
@@ -52,7 +56,8 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        return piece.pieceMoves(board, startPosition);
     }
 
     /**
