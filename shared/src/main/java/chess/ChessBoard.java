@@ -7,10 +7,10 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    //final private ChessPiece[][] board = new ChessPiece[8][8]
+
     ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
-        
+
     }
 
 
@@ -23,23 +23,17 @@ public class ChessBoard {
             for (int j = 0; j < 8; j++) {
                 ChessPiece a = board[i][j];
                 ChessPiece b = chessBoard.board[i][j];
-                if (a == null && b == null) continue;   // both empty → equal
-                if (a == null || b == null) return false;
+                if (a == null && b == null) {continue;}
+                if (a == null || b == null) {return false;}
                 if (!a.equals(b)) {return false;}
-
-                //if (!java.util.Objects.equals(board[i][j], chessBoard.board[i][j])) return false;
-                //what chatGPT wanted me to do but I need an explanation
             }
         }
         return true;
-        //ChessPiece piece = (ChessPiece) o;
-        //return (pieceColor == piece.pieceColor && type == piece.type);
     }
 
-    //alright I think it's correct but I wanna understand it more
     @Override
     public int hashCode() {
-        return java.util.Arrays.deepHashCode(board); //chatGPT supplied. Need to understand better
+        return java.util.Arrays.deepHashCode(board);
     }
 
     /**
@@ -70,11 +64,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         //idk if it's necessary to clear the board first but whatever
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                board[i][j] = null;
-            }
-        }
+
 
         for (int j = 0; j < 8; j++) {
             board[1][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
