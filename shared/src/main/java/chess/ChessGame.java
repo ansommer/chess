@@ -99,8 +99,6 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in check
-     *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
@@ -119,8 +117,6 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in checkmate
-     *
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
@@ -159,6 +155,28 @@ public class ChessGame {
 
     }
 
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves while not in check.
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(ChessGame.TeamColor teamColor) {
+        if (!isInCheckmate(teamColor)) {
+            Collection<ChessPosition> myMoves = teamMoves(teamColor);
+            for (ChessPosition move : myMoves) {
+                board.addPiece(move, new ChessPiece(teamColor, PAWN));
+                if (isInCheck(teamColor)) {
+                    board.addPiece(move, new ChessPiece(teamColor, null));
+                    return true;
+                } else {
+                    board.addPiece(move, new ChessPiece(teamColor, null));
+                }
+            }
+        }
+        return false;
+    }
 
     public ChessPosition findKing(ChessGame.TeamColor teamColor) {
         ChessPosition kingPosition = null;
@@ -173,26 +191,6 @@ public class ChessGame {
         }
         return kingPosition;
     }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(ChessGame.TeamColor teamColor) {
-        if (!isInCheckmate(teamColor)) {
-            ChessPosition kingPosition = findKing(teamColor);
-            ChessPiece king = board.getPiece(kingPosition);
-            Collection<ChessPosition> myMoves = teamMoves(teamColor);
-            for (ChessPosition move : myMoves) {
-
-            }
-        }
-        return false;
-    }
-
 
     public Collection<ChessPosition> teamMoves(ChessGame.TeamColor teamColor) { //gets all the moves a team can make
         Collection<ChessPosition> teamMoves = new ArrayList<>();
