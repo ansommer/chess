@@ -2,7 +2,8 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Objects;
+import chess.ChessBoard;
 import static chess.ChessPiece.PieceType.KING;
 import static chess.ChessPiece.PieceType.PAWN;
 
@@ -17,11 +18,28 @@ public class ChessGame {
     private TeamColor team;
     private ChessBoard board; //actually do I need to do something with this? How does it know what the board is?
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return team == chessGame.team && Objects.equals(board, chessGame.board);
+    }
+
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(team, board);
+    }
+
     //need to make the equals and hashcode
 
     public ChessGame() {
         team = TeamColor.WHITE;
         board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
@@ -72,15 +90,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //fix it so it will throw the error
+        //maybe take a look at the errors again
 
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
 
+
         if (piece == null) {
             throw new InvalidMoveException("No piece at start position");
         }
+
         if (piece.getTeamColor() != team) {
             throw new InvalidMoveException("Not your turn");
         }
@@ -216,7 +236,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -225,6 +245,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 }
