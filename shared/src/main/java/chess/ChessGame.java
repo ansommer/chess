@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import chess.ChessBoard;
+
 import static chess.ChessPiece.PieceType.KING;
 import static chess.ChessPiece.PieceType.PAWN;
 
@@ -15,7 +15,7 @@ import static chess.ChessPiece.PieceType.PAWN;
  */
 public class ChessGame {
 
-    private TeamColor team;
+    private TeamColor teamTurn;
     private ChessBoard board; //actually do I need to do something with this? How does it know what the board is?
 
     @Override
@@ -24,42 +24,41 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return team == chessGame.team && Objects.equals(board, chessGame.board);
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
     }
 
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(team, board);
+        return Objects.hash(teamTurn, board);
     }
 
     //need to make the equals and hashcode
 
     public ChessGame() {
-        team = TeamColor.WHITE;
+        teamTurn = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
     }
 
     /**
-     * @return Which team's turn it is
+     * @return Which teamTurn's turn it is
      */
     public TeamColor getTeamTurn() {
-        return team;
+        return teamTurn;
     }
 
     /**
      * Set's which teams turn it is
      *
-     * @param team the team whose turn it is
+     * @param team the teamTurn whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.team = team;
         if (team == TeamColor.WHITE) {
-            team = TeamColor.BLACK;
+            teamTurn = TeamColor.BLACK;
         } else if (team == TeamColor.BLACK) {
-            team = TeamColor.WHITE;
+            teamTurn = TeamColor.WHITE;
         }
     }
 
@@ -101,7 +100,7 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position");
         }
 
-        if (piece.getTeamColor() != team) {
+        if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your turn");
         }
 
@@ -114,13 +113,13 @@ public class ChessGame {
         board.addPiece(start, null);
         board.addPiece(end, piece);
 
-        setTeamTurn(team);
+        setTeamTurn(teamTurn);
 
     }
 
     /**
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
+     * @param teamColor which teamTurn to check for check
+     * @return True if the specified teamTurn is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(teamColor);
@@ -129,7 +128,7 @@ public class ChessGame {
         else if (teamColor == TeamColor.BLACK) {opposingColor = TeamColor.WHITE;}
         Collection<ChessPosition> opposingMoves = teamMoves(opposingColor);
         for (ChessPosition move : opposingMoves) {
-            if (move == kingPosition) {
+            if (move.equals(kingPosition)) {
                 return true;
             }
         }
@@ -137,8 +136,8 @@ public class ChessGame {
     }
 
     /**
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
+     * @param teamColor which teamTurn to check for checkmate
+     * @return True if the specified teamTurn is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
@@ -147,15 +146,15 @@ public class ChessGame {
             Collection<ChessMove> kingMoves = king.kingMoves(board, kingPosition);
 
             TeamColor opposingColor = null;
-            if (teamColor == TeamColor.WHITE) {opposingColor = TeamColor.BLACK;}
-            else if (teamColor == TeamColor.BLACK) {opposingColor = TeamColor.WHITE;}
+            if (teamColor.equals(TeamColor.WHITE)) {opposingColor = TeamColor.BLACK;}
+            else if (teamColor.equals(TeamColor.BLACK)) {opposingColor = TeamColor.WHITE;}
             Collection<ChessPosition> opposingMoves = teamMoves(opposingColor);
             //checking if the king can move anywhere
             for (ChessPosition move : opposingMoves) {
                 kingMoves.removeIf(kingMove -> move.equals(kingMove.getEndPosition()));
             }
             //checking if other pieces can block
-            if (kingMoves.isEmpty()) {
+            if (kingMoves.isEmpty()) { //I have to check if it will be in check if it moves there
                 Collection<ChessPosition> myMoves = teamMoves(teamColor);
                 for (ChessPosition move : myMoves) {
                     board.addPiece(move, new ChessPiece(teamColor, PAWN));
@@ -168,6 +167,16 @@ public class ChessGame {
                         return false;
                     }
                 }
+            } else {
+                for (ChessMove move : kingMoves) {
+                    board.addPiece(kingPosition, null);
+                    board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, KING));
+                    if (isInCheck(teamColor)) {
+                        board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, null));
+                        board.addPiece(kingPosition, new ChessPiece(teamColor, KING));
+                        return true;
+                    }
+                }
             }
         }
 
@@ -176,11 +185,11 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in stalemate, which here is defined as having
+     * Determines if the given teamTurn is in stalemate, which here is defined as having
      * no valid moves while not in check.
      *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
+     * @param teamColor which teamTurn to check for stalemate
+     * @return True if the specified teamTurn is in stalemate, otherwise false
      */
     public boolean isInStalemate(ChessGame.TeamColor teamColor) {
         if (!isInCheckmate(teamColor)) {
@@ -200,8 +209,8 @@ public class ChessGame {
 
     public ChessPosition findKing(ChessGame.TeamColor teamColor) {
         ChessPosition kingPosition = null;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null && piece.getPieceType() == KING && piece.getTeamColor() == teamColor) {
@@ -212,10 +221,10 @@ public class ChessGame {
         return kingPosition;
     }
 
-    public Collection<ChessPosition> teamMoves(ChessGame.TeamColor teamColor) { //gets all the moves a team can make
+    public Collection<ChessPosition> teamMoves(ChessGame.TeamColor teamColor) { //gets all the moves a teamTurn can make
         Collection<ChessPosition> teamMoves = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null && piece.getTeamColor() == teamColor) {
