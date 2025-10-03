@@ -99,9 +99,9 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position");
         }
 
-        if (piece.getTeamColor() != teamTurn) {
+        /*if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your turn");
-        }
+        }*/
 
         Collection<ChessMove> valid = piece.pieceMoves(board, start);
         if (!valid.contains(move)) {
@@ -129,24 +129,14 @@ public class ChessGame {
         TeamColor opposingColor = null;
         if (teamColor == TeamColor.WHITE) {opposingColor = TeamColor.BLACK;}
         else if (teamColor == TeamColor.BLACK) {opposingColor = TeamColor.WHITE;}
-        Map<ChessPiece, Collection<ChessMove>> opposingMoves  = teamMoves(opposingColor, boardToCheck);
-        List<ChessMove> allMoves = new ArrayList<>();
-        for (Collection<ChessMove> moves : opposingMoves.values()) {
-            allMoves.addAll(moves);
-        }
-        for (ChessMove move : allMoves) {
+        Collection<PieceAndMove> opposingMoves = teamMoves(opposingColor, boardToCheck);
+        for (PieceAndMove pam : opposingMoves) {
+            ChessMove move = pam.getMove();
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
             }
         }
         return false;
-
-
-        /*ChessPosition kingPos = findKing(teamColor, boardToCheck);
-        Collection<ChessPosition> opponentMoves = teamMoves(getOppositeColor(teamColor), boardToCheck);
-
-        // if any opponent move hits the king’s square, you’re in check
-        return opponentMoves.contains(kingPos);*/
     }
 
 
@@ -165,40 +155,35 @@ public class ChessGame {
         TeamColor opposingColor = null;
         if (teamColor.equals(TeamColor.WHITE)) {opposingColor = TeamColor.BLACK;}
         else if (teamColor.equals(TeamColor.BLACK)) {opposingColor = TeamColor.WHITE;}
-        testBoard = board.copy();
+
         for (ChessMove move : kingMoves) {
+            testBoard = board.copy();
             testBoard.addPiece(kingPosition, null);
             testBoard.addPiece(move.getEndPosition(), new ChessPiece(teamColor, KING));
             if (isInCheck(teamColor, testBoard)) {
                 validKingMoves.remove(move);
             }
-            testBoard = board.copy();
+
         }
         if (validKingMoves.isEmpty()) {
-            Map<ChessPiece, Collection<ChessMove>> myMoves  = teamMoves(teamColor, board);
-            for (Map.Entry<ChessPiece, Collection<ChessMove>> entry : myMoves.entrySet()) {
-                ChessPiece piece = entry.getKey();
-                Collection<ChessMove> moves = entry.getValue();
-                if (piece.getPieceType().equals(ChessPiece.PieceType.KING)) {
+            Collection<PieceAndMove> myMoves  = teamMoves(teamColor, board);
+            for (PieceAndMove pam : myMoves) {
+                testBoard = board.copy();
+                ChessMove move = pam.getMove();
+                ChessPiece piece = pam.getPiece();
+                if (piece.getPieceType().equals(KING)) {
                     continue;
                 }
-                for (ChessMove move : moves) {
-                    testBoard.addPiece(move.getStartPosition(), null);
-                    testBoard.addPiece(move.getEndPosition(), piece);
-                    if (isInCheck(teamColor, testBoard)) {
-                        testBoard = board.copy();
-                    } else {
-                        testBoard = board.copy();
-                        return false;
-                    }
+                testBoard.addPiece(move.getStartPosition(), null);
+                testBoard.addPiece(move.getEndPosition(), piece);
+                if (!isInCheck(teamColor, testBoard)) {
+                    return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
-
-
-
 
 
     /**
@@ -209,27 +194,19 @@ public class ChessGame {
      * @return True if the specified teamTurn is in stalemate, otherwise false
      */
     public boolean isInStalemate(ChessGame.TeamColor teamColor) {
-        if (!isInCheckmate(teamColor)) {
-            Map<ChessPiece, Collection<ChessMove>> myMoves  = teamMoves(teamColor, board);
-
+        if (isInCheck(teamColor)) return false;
+        Collection<PieceAndMove> myMoves  = teamMoves(teamColor, board);
+        for (PieceAndMove pam : myMoves) {
             testBoard = board.copy();
-            for (Map.Entry<ChessPiece, Collection<ChessMove>> entry : myMoves.entrySet()) {
-                ChessPiece piece = entry.getKey();
-                Collection<ChessMove> moves = entry.getValue();
-
-                for (ChessMove move : moves) {
-                    testBoard.addPiece(move.getStartPosition(), null);
-                    testBoard.addPiece(move.getEndPosition(), piece);
-                    if (isInCheck(teamColor, testBoard)) {
-                        testBoard = board.copy();
-                        return true;
-                    } else {
-                        testBoard = board.copy();
-                    }
-                }
+            ChessMove move = pam.getMove();
+            ChessPiece piece = pam.getPiece();
+            testBoard.addPiece(move.getStartPosition(), null);
+            testBoard.addPiece(move.getEndPosition(), piece);
+            if (!isInCheck(teamColor, testBoard)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public ChessPosition findKing(ChessGame.TeamColor teamColor, ChessBoard boardToCheck) {
@@ -246,9 +223,9 @@ public class ChessGame {
         return kingPosition;
     }
 
-    public Map<ChessPiece, Collection<ChessMove>> teamMoves(ChessGame.TeamColor teamColor, ChessBoard board) { //gets all the moves a teamTurn can make
-        //Collection<ChessPosition> teamMoves = new ArrayList<>();
-        Map<ChessPiece, Collection<ChessMove>> teamMoves = new HashMap<>();
+    public Collection<PieceAndMove> teamMoves(ChessGame.TeamColor teamColor, ChessBoard board) { //gets all the moves a teamTurn can make
+
+        Collection<PieceAndMove> teamMoves = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -256,7 +233,9 @@ public class ChessGame {
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> validMoves = validMoves(position, board);
                     if (validMoves != null && !validMoves.isEmpty()) {
-                        teamMoves.put(piece, validMoves);
+                        for (ChessMove move : validMoves) {
+                            teamMoves.add(new PieceAndMove(piece, move));
+                        }
                     }
                 }
             }
