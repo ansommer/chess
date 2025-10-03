@@ -106,26 +106,21 @@ public class ChessGame {
             }
         }
 
-        if(piece.getPieceType().equals(ROOK) && canCastle(teamTurn, startPosition)) {
-            int col;
-            if (startPosition.getColumn() == 1) {
-                col = 4;
-            } else { col = 6; }
-            moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), col), null));
-        }
-        if (piece.getPieceType().equals(KING) && canCastle(teamTurn, startPosition)) {
+
+
+        if (piece.getPieceType().equals(KING)) {
             if (teamTurn == TeamColor.WHITE) {
-                if (!whiteKingOrRook1Moved) {
+                if (canCastle(teamTurn, startPosition, whiteKingOrRook1Moved, 1)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 3), null));
                 }
-                if (!whiteKingOrRook2Moved) {
+                if (canCastle(teamTurn, startPosition, whiteKingOrRook2Moved, 2)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 7), null));
                 }
             } else if (teamTurn == TeamColor.BLACK) {
-                if (!blackKingOrRook1Moved) {
+                if (canCastle(teamTurn, startPosition, blackKingOrRook1Moved, 1)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 3), null));
                 }
-                if (!blackKingOrRook2Moved) {
+                if (canCastle(teamTurn, startPosition, blackKingOrRook2Moved, 2)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 7), null));
                 }
             }
@@ -138,37 +133,8 @@ public class ChessGame {
     
     //I think I can come back to this and simplify by saying !whiteKingOrRook1Moved or !blackKingOrRook1Moved bc they use the same logic
     //but first see if it works this way
-    public boolean canCastle(TeamColor teamColor, ChessPosition start) {
-        if (teamTurn == TeamColor.WHITE) {
-            if (!whiteKingOrRook1Moved) {
-                for (int col = 2; col <= 5; col++) {
-                    testBoard = board.copy();
-                    if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
-                        return false;
-                    }
-                    testBoard.addPiece(start, null);
-                    testBoard.addPiece(new ChessPosition(start.getRow(), col), new ChessPiece(teamColor, KING));
-                    if(isInCheck(teamTurn, testBoard)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            if (!whiteKingOrRook2Moved) {
-                for (int col = 5; col <= 7; col++) {
-                    testBoard = board.copy();
-                    if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
-                        return false;
-                    }
-                    testBoard.addPiece(start, null);
-                    testBoard.addPiece(new ChessPosition(start.getRow(), col), new ChessPiece(teamColor, KING));
-                    if(isInCheck(teamTurn, testBoard)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        } else if (!blackKingOrRook1Moved) {
+    public boolean canCastle(TeamColor teamColor, ChessPosition start, Boolean castleMove, int side) {
+        if (!castleMove && side == 1) {
             for (int col = 2; col <= 5; col++) {
                 testBoard = board.copy();
                 if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
@@ -176,13 +142,14 @@ public class ChessGame {
                 }
                 testBoard.addPiece(start, null);
                 testBoard.addPiece(new ChessPosition(start.getRow(), col), new ChessPiece(teamColor, KING));
-                if(isInCheck(teamTurn, testBoard)) {
+                if (isInCheck(teamTurn, testBoard)) {
                     return false;
                 }
             }
             return true;
         }
-        if (!blackKingOrRook2Moved) {
+
+        if (!castleMove && side == 2) {
             for (int col = 5; col <= 7; col++) {
                 testBoard = board.copy();
                 if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
@@ -195,8 +162,7 @@ public class ChessGame {
                 }
             }
             return true;
-
-        }
+            }
         return false;
     }
 
@@ -230,7 +196,6 @@ public class ChessGame {
 
         Collection<ChessMove> valid = validMoves(start);
 
-        //Collection<ChessMove> valid = piece.pieceMoves(board, start);
         if (!valid.contains(move)) {
             throw new InvalidMoveException("Invalid move for piece");
         }
@@ -240,8 +205,9 @@ public class ChessGame {
         }
 
 
-
-        castle(start, end, piece, piece.getPieceType());
+        if(piece.getPieceType() == KING && end.getRow() == 5 && end.getRow() == 7) {
+            castle(start, end, piece, piece.getPieceType());
+        }
 
 
         board.addPiece(start, null);
@@ -263,27 +229,15 @@ public class ChessGame {
         if(teamTurn == TeamColor.WHITE) {
             row = 1;
             canCastle1 = whiteKingOrRook1Moved;
-            canCastle2 = whiteKingOrRook1Moved;
-            if(piece.getPieceType() == KING) {
-                castleMove1 = new ChessPosition(1, 3);
-                castleMove2 = new ChessPosition(1, 7);
-            }
-            if(piece.getPieceType() == ROOK) {
-                castleMove1 = new ChessPosition(1, 4);
-                castleMove2 = new ChessPosition(1, 6);
-            }
-            } else {
+            canCastle2 = whiteKingOrRook2Moved;
+            castleMove1 = new ChessPosition(1, 3);
+            castleMove2 = new ChessPosition(1, 7);
+        } else {
             row = 8;
             canCastle1 = blackKingOrRook1Moved;
             canCastle2 = blackKingOrRook1Moved;
-                if(piece.getPieceType() == KING) {
-                    castleMove1 = new ChessPosition(8, 3);
-                    castleMove2 = new ChessPosition(8, 7);
-                }
-                if(piece.getPieceType() == ROOK) {
-                    castleMove1 = new ChessPosition(8, 4);
-                    castleMove2 = new ChessPosition(8, 6);
-                }
+            castleMove1 = new ChessPosition(8, 3);
+            castleMove2 = new ChessPosition(8, 7);
             }
         if(!canCastle1 && end.equals(castleMove1)) {
             board.addPiece(new ChessPosition(row, 5), null);
