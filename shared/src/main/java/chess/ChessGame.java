@@ -123,6 +123,9 @@ public class ChessGame {
         return moves;
     }
 
+    
+    //I think I can come back to this and simplify by saying !whiteKingOrRook1Moved or !blackKingOrRook1Moved bc they use the same logic
+    //but first see if it works this way
     public boolean canCastle(TeamColor teamColor, ChessPosition start) {
         if (teamTurn == TeamColor.WHITE) {
             if (!whiteKingOrRook1Moved) {
@@ -209,6 +212,70 @@ public class ChessGame {
             piece = new ChessPiece(teamTurn, promo);
         }
 
+        checkIfMoved(piece, start);
+        ChessPosition temp1 = null;
+        ChessPosition temp2 = null;
+        //I could probably make a function that makes this waayyy simpler
+        if(teamTurn == TeamColor.WHITE) {
+            if(piece.getPieceType() == KING) {
+                temp1 = new ChessPosition(1, 3);
+                temp2 = new ChessPosition(1, 7);
+            }
+            if(piece.getPieceType() == ROOK) {
+                temp1 = new ChessPosition(1, 3);
+                temp2 = new ChessPosition(1, 7);
+            }
+
+            if(!whiteKingOrRook1Moved && end.equals(temp1)) {
+                board.addPiece(start, null);
+                board.addPiece(end, piece);
+                board.addPiece(new ChessPosition(1, 1), null);
+                board.addPiece(new ChessPosition(1, 4), new ChessPiece(teamTurn, ROOK));
+            }
+
+            if(!whiteKingOrRook2Moved && end.equals(temp2)) {
+                board.addPiece(start, null);
+                board.addPiece(end, piece);
+                board.addPiece(new ChessPosition(1, 8), null);
+                board.addPiece(new ChessPosition(1, 6), new ChessPiece(teamTurn, ROOK));
+            } else {
+                if(piece.getPieceType() == KING) {
+                    temp1 = new ChessPosition(8, 3);
+                    temp2 = new ChessPosition(8, 7);
+                }
+                if(piece.getPieceType() == ROOK) {
+                    temp1 = new ChessPosition(8, 3);
+                    temp2 = new ChessPosition(8, 7);
+                }
+
+                if(!blackKingOrRook1Moved && end.equals(temp1)) {
+                    board.addPiece(start, null);
+                    board.addPiece(end, piece);
+                    board.addPiece(new ChessPosition(8, 1), null);
+                    board.addPiece(new ChessPosition(8, 4), new ChessPiece(teamTurn, ROOK));
+                }
+
+                if(!blackKingOrRook2Moved && end.equals(temp2)) {
+                    board.addPiece(start, null);
+                    board.addPiece(end, piece);
+                    board.addPiece(new ChessPosition(8, 8), null);
+                    board.addPiece(new ChessPosition(8, 6), new ChessPiece(teamTurn, ROOK));
+                }
+            }
+
+        }
+
+        board.addPiece(start, null);
+        board.addPiece(end, piece);
+
+        if (teamTurn.equals(TeamColor.WHITE)) {teamTurn = TeamColor.BLACK;}
+        else if (teamTurn.equals(TeamColor.BLACK)) {teamTurn = TeamColor.WHITE;}
+        setTeamTurn(teamTurn);
+
+    }
+
+
+    public void checkIfMoved(ChessPiece piece, ChessPosition start) {
         if(piece.getPieceType() == KING && teamTurn == TeamColor.WHITE) {
             whiteKingOrRook1Moved = true;
             whiteKingOrRook2Moved = true;
@@ -227,16 +294,8 @@ public class ChessGame {
         } else if (start.equals(new ChessPosition(8, 8))) {
             blackKingOrRook2Moved = true;
         }
-
-        board.addPiece(start, null);
-        board.addPiece(end, piece);
-
-        if (teamTurn.equals(TeamColor.WHITE)) {teamTurn = TeamColor.BLACK;}
-        else if (teamTurn.equals(TeamColor.BLACK)) {teamTurn = TeamColor.WHITE;}
-        setTeamTurn(teamTurn);
-
     }
-
+    
     /**
      * @param teamColor which teamTurn to check for check
      * @return True if the specified teamTurn is in check
@@ -314,7 +373,7 @@ public class ChessGame {
      * @param teamColor which teamTurn to check for stalemate
      * @return True if the specified teamTurn is in stalemate, otherwise false
      */
-    public boolean isInStalemate(ChessGame.TeamColor teamColor) {
+    public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheck(teamColor)) return false;
         Collection<PieceAndMove> myMoves  = teamMoves(teamColor, board);
         for (PieceAndMove pam : myMoves) {
@@ -330,7 +389,7 @@ public class ChessGame {
         return true;
     }
 
-    public ChessPosition findKing(ChessGame.TeamColor teamColor, ChessBoard boardToCheck) {
+    public ChessPosition findKing(TeamColor teamColor, ChessBoard boardToCheck) {
         ChessPosition kingPosition = null;
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -344,7 +403,7 @@ public class ChessGame {
         return kingPosition;
     }
 
-    public Collection<PieceAndMove> teamMoves(ChessGame.TeamColor teamColor, ChessBoard board) { //gets all the moves a teamTurn can make
+    public Collection<PieceAndMove> teamMoves(TeamColor teamColor, ChessBoard board) { //gets all the moves a teamTurn can make
 
         Collection<PieceAndMove> teamMoves = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
