@@ -73,7 +73,10 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        return piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        //moves.removeIf(move -> isInCheck(teamTurn));
+
+        return moves;
     }
 
     public Collection<ChessMove> validMoves(ChessPosition startPosition, ChessBoard board) {
@@ -99,6 +102,10 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position");
         }
 
+        if (isInCheck(teamTurn)) {
+            throw new InvalidMoveException("That will put you in check!");
+        }
+
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your turn");
         }
@@ -107,6 +114,8 @@ public class ChessGame {
         if (!valid.contains(move)) {
             throw new InvalidMoveException("Invalid move for piece");
         }
+
+
 
 
         board.addPiece(start, null);
