@@ -100,7 +100,7 @@ public class ChessPiece {
     public boolean checkPosition(ChessBoard board, int checkRow, int checkCol) {
         if (checkRow > 0 && checkRow <= 8 && checkCol > 0 && checkCol <= 8) {
             ChessPiece newPosition = board.getPiece(new ChessPosition(checkRow, checkCol));
-            return newPosition == null || newPosition.pieceColor != pieceColor;
+            return newPosition == null || !newPosition.pieceColor.equals(pieceColor);
         }
         return false;
     }
