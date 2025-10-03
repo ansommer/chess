@@ -99,9 +99,9 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position");
         }
 
-        /*if (piece.getTeamColor() != teamTurn) {
+        if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your turn");
-        }*/
+        }
 
         Collection<ChessMove> valid = piece.pieceMoves(board, start);
         if (!valid.contains(move)) {
@@ -112,6 +112,8 @@ public class ChessGame {
         board.addPiece(start, null);
         board.addPiece(end, piece);
 
+        if (teamTurn.equals(TeamColor.WHITE)) {teamTurn = TeamColor.BLACK;}
+        else if (teamTurn.equals(TeamColor.BLACK)) {teamTurn = TeamColor.WHITE;}
         setTeamTurn(teamTurn);
 
     }
