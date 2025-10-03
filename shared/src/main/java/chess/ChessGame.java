@@ -3,7 +3,6 @@ package chess;
 import java.util.*;
 
 import static chess.ChessPiece.PieceType.KING;
-import static chess.ChessPiece.PieceType.PAWN;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -74,14 +73,18 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
-        //moves.removeIf(move -> isInCheck(teamTurn));
+        Iterator<ChessMove> it = moves.iterator();
+        while (it.hasNext()) {
+            ChessMove move = it.next();
+            ChessBoard testBoard = board.copy();
+            testBoard.addPiece(move.getStartPosition(), null);
+            testBoard.addPiece(move.getEndPosition(), piece);
+            if (isInCheck(piece.getTeamColor(), testBoard)) {
+                it.remove();
+            }
+        }
 
         return moves;
-    }
-
-    public Collection<ChessMove> validMoves(ChessPosition startPosition, ChessBoard board) {
-        ChessPiece piece = board.getPiece(startPosition);
-        return piece.pieceMoves(board, startPosition);
     }
 
     /**
@@ -96,6 +99,7 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
+        ChessPiece.PieceType promo = move.getPromotionPiece();
 
 
         if (piece == null) {
@@ -115,7 +119,9 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid move for piece");
         }
 
-
+        if(promo != null){
+            piece = new ChessPiece(teamTurn, promo);
+        }
 
 
         board.addPiece(start, null);
@@ -242,9 +248,9 @@ public class ChessGame {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> validMoves = validMoves(position, board);
-                    if (validMoves != null && !validMoves.isEmpty()) {
-                        for (ChessMove move : validMoves) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                    if (moves != null && !moves.isEmpty()) {
+                        for (ChessMove move : moves) {
                             teamMoves.add(new PieceAndMove(piece, move));
                         }
                     }
