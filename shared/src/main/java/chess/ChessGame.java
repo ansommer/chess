@@ -143,7 +143,7 @@ public class ChessGame {
             if (!whiteKingOrRook1Moved) {
                 for (int col = 2; col <= 5; col++) {
                     testBoard = board.copy();
-                    if (testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
+                    if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                         return false;
                     }
                     testBoard.addPiece(start, null);
@@ -157,7 +157,7 @@ public class ChessGame {
             if (!whiteKingOrRook2Moved) {
                 for (int col = 5; col <= 7; col++) {
                     testBoard = board.copy();
-                    if (testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
+                    if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                         return false;
                     }
                     testBoard.addPiece(start, null);
@@ -169,9 +169,9 @@ public class ChessGame {
                 return true;
             }
         } else if (!blackKingOrRook1Moved) {
-            for (int col = 2; col <= 4; col++) {
+            for (int col = 2; col <= 5; col++) {
                 testBoard = board.copy();
-                if (testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
+                if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                     return false;
                 }
                 testBoard.addPiece(start, null);
@@ -183,9 +183,9 @@ public class ChessGame {
             return true;
         }
         if (!blackKingOrRook2Moved) {
-            for (int col = 6; col <= 7; col++) {
+            for (int col = 5; col <= 7; col++) {
                 testBoard = board.copy();
-                if (testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
+                if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                     return false;
                 }
                 testBoard.addPiece(start, null);
