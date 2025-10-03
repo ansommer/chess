@@ -128,12 +128,13 @@ public class ChessGame {
         return moves;
     }
 
-    
-    //I think I can come back to this and simplify by saying !whiteKingOrRook1Moved or !blackKingOrRook1Moved bc they use the same logic
-    //but first see if it works this way
+
     public boolean canCastle(TeamColor teamColor, ChessPosition start, Boolean castleMove, int side) {
         if (!castleMove && side == 1) {
             for (int col = 2; col <= 5; col++) {
+                if (board.getPiece(new ChessPosition (start.getRow(), 1)) == null) {
+                    return false;
+                }
                 testBoard = board.copy();
                 if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                     return false;
@@ -149,6 +150,9 @@ public class ChessGame {
 
         if (!castleMove && side == 2) {
             for (int col = 5; col <= 7; col++) {
+                if (board.getPiece(new ChessPosition (start.getRow(), 8)) == null) {
+                    return false;
+                }
                 testBoard = board.copy();
                 if (col != 5 && testBoard.getPiece(new ChessPosition(start.getRow(), col)) != null) {
                     return false;
