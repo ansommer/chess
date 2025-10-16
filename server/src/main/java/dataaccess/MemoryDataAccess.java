@@ -16,4 +16,9 @@ public class MemoryDataAccess implements DataAccess {
     public void getUser(String username) {
         users.get(username);
     }
+
+    public boolean userExists(String username) {
+        return users.containsKey(username);
+    }
+
 }
