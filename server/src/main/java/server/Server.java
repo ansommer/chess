@@ -28,6 +28,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx -> ctx.result("{}"));
         server.post("user", this::register);
+        server.post("session", this::login);
     }
 
     //we think that this is the handler

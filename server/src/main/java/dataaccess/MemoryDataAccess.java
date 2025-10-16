@@ -17,6 +17,13 @@ public class MemoryDataAccess implements DataAccess {
         users.get(username);
     }
 
+    //should this be in the interface and then in that case override
+    //also this isn't following the void format of the other ones... could/should I do that?
+    public String getPass(String username) {
+        User user = users.get(username);
+        return (user == null) ? null : user.password();
+    }
+
     public boolean userExists(String username) {
         return users.containsKey(username);
     }
