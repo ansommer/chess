@@ -3,12 +3,10 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import datamodel.User;
+import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.BadRequestException;
-import service.RegisterService;
-import service.LoginService;
+import service.*;
 import service.UnauthorizedException;
 
 public class Server {
@@ -26,31 +24,37 @@ public class Server {
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        //server.delete("db", ctx -> ctx.result("{}"));
-        //so maybe make it a handler?
-        server.delete("db", ctx -> {
-            try {
-                dataAccess.clear(); // ← implement this in MemoryDataAccess
-                ctx.status(200);
-                ctx.result("{}");
-            } catch (Exception e) {
-                ctx.status(500);
-                ctx.result("{\"message\": \"Error clearing database\"}");
-            }
-        });
-
+        server.delete("db", this::clearHandler);
         server.post("user", this::registerHandler);
         server.post("session", this::loginHandler);
     }
 
-    //we think that this is the handler
-    //the service does all the logic
+
+    //It's not working, but I think I actually need to make it so it can create a game in order to test if it works...
+    private void clearHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            //String reqJson = ctx.body();
+            //var req = serializer.fromJson(reqJson, User.class);
+            //var res = registerService.register(req);
+            var clearService = new ClearService(dataAccess);
+            var res = clearService.clear();
+            //ctx.result(serializer.toJson(res));
+            ctx.status(200);
+            ctx.result(res);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"Error clearing database\"}");
+        }
+
+    }
+
     private void registerHandler(Context ctx) {
         var serializer = new Gson();
 
         try {
             String reqJson = ctx.body();
-            var req = serializer.fromJson(reqJson, User.class);
+            var req = serializer.fromJson(reqJson, UserData.class);
             var res = registerService.register(req);
             ctx.status(200);
             ctx.result(serializer.toJson(res));
@@ -73,7 +77,7 @@ public class Server {
 
         try {
             String reqJson = ctx.body();
-            var req = serializer.fromJson(reqJson, User.class);
+            var req = serializer.fromJson(reqJson, UserData.class);
             var res = loginService.login(req);
             ctx.status(200);
             ctx.result(serializer.toJson(res));
