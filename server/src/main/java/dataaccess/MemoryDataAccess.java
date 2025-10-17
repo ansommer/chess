@@ -1,14 +1,18 @@
 package dataaccess;
 
-import datamodel.User;
+import datamodel.AuthData;
+import datamodel.GameData;
+import datamodel.UserData;
 
 import java.util.HashMap;
 
 public class MemoryDataAccess implements DataAccess {
-    private HashMap<String, User> users = new HashMap<>();
+    private HashMap<String, UserData> users = new HashMap<>();
+    private HashMap<String, AuthData> authTokens = new HashMap<>();
+    private HashMap<String, GameData> games = new HashMap<>();
 
     @Override
-    public void saveUser(User user) {
+    public void saveUser(UserData user) {
         users.put(user.username(), user);
     }
 
@@ -20,7 +24,7 @@ public class MemoryDataAccess implements DataAccess {
     //should this be in the interface and then in that case override
     //also this isn't following the void format of the other ones... could/should I do that?
     public String getPass(String username) {
-        User user = users.get(username);
+        UserData user = users.get(username);
         return (user == null) ? null : user.password();
     }
 
@@ -30,8 +34,8 @@ public class MemoryDataAccess implements DataAccess {
 
     public void clear() {
         users.clear();
-        //authTokens.clear();
-        //games.clear();
+        authTokens.clear();
+        games.clear();
     }
 
 

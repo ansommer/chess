@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import datamodel.User;
+import datamodel.UserData;
 import datamodel.RegistrationResult;
 
 public class RegisterService {
@@ -12,7 +12,7 @@ public class RegisterService {
         this.dataAccess = dataAccess;
     }
 
-    public RegistrationResult register(User user) throws DataAccessException {
+    public RegistrationResult register(UserData user) throws DataAccessException {
 
         if (dataAccess.userExists(user.username())) { //check that it's not already taken
             throw new DataAccessException("Error: already taken");
