@@ -28,4 +28,11 @@ public class MemoryDataAccess implements DataAccess {
         return users.containsKey(username);
     }
 
+    public void clear() {
+        users.clear();
+        //authTokens.clear();
+        //games.clear();
+    }
+
+
 }

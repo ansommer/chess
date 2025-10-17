@@ -26,14 +26,26 @@ public class Server {
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        server.delete("db", ctx -> ctx.result("{}"));
-        server.post("user", this::register);
-        server.post("session", this::login);
+        //server.delete("db", ctx -> ctx.result("{}"));
+        //so maybe make it a handler?
+        server.delete("db", ctx -> {
+            try {
+                dataAccess.clear(); // ← implement this in MemoryDataAccess
+                ctx.status(200);
+                ctx.result("{}");
+            } catch (Exception e) {
+                ctx.status(500);
+                ctx.result("{\"message\": \"Error clearing database\"}");
+            }
+        });
+
+        server.post("user", this::registerHandler);
+        server.post("session", this::loginHandler);
     }
 
     //we think that this is the handler
     //the service does all the logic
-    private void register(Context ctx) {
+    private void registerHandler(Context ctx) {
         var serializer = new Gson();
 
         try {
@@ -56,7 +68,7 @@ public class Server {
     }
 
 
-    private void login(Context ctx) {
+    private void loginHandler(Context ctx) {
         var serializer = new Gson();
 
         try {
