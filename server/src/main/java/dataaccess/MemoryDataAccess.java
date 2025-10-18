@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
-    private HashMap<String, AuthData> authTokens = new HashMap<>();
+    private HashMap<String, String> authTokens = new HashMap<>(); //token, username
     private HashMap<String, GameData> games = new HashMap<>();
 
     @Override
@@ -21,8 +21,18 @@ public class MemoryDataAccess implements DataAccess {
         users.get(username);
     }
 
-    //should this be in the interface and then in that case override
-    //also this isn't following the void format of the other ones... could/should I do that?
+    public void deleteAuth(String auth) {
+        authTokens.remove(auth);
+    }
+
+    public void saveAuth(AuthData auth) {
+        authTokens.put(auth.authToken(), auth.username());
+    }
+
+    public boolean authExists(String auth) {
+        return authTokens.containsKey(auth);
+    }
+
     public String getPass(String username) {
         UserData user = users.get(username);
         return (user == null) ? null : user.password();

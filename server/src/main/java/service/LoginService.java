@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.MemoryDataAccess;
-import datamodel.LoginResult;
+import datamodel.AuthData;
 import datamodel.UserData;
 
 public class LoginService {
@@ -11,13 +11,13 @@ public class LoginService {
         this.dataAccess = dataAccess;
     }
 
-    public LoginResult login(UserData user) throws UnauthorizedException {
+    public AuthData login(UserData user) throws UnauthorizedException {
         if (user.username() == null || user.password() == null) { //check that it has username and password
             throw new BadRequestException("Error: bad request");
         } else if (!dataAccess.userExists(user.username()) || !dataAccess.getPass(user.username()).equals(user.password())) {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        return new LoginResult(user.username(), "whateveritsnotreal");
+        return new AuthData(user.username(), "whateveritsnotreal");
     }
 }

@@ -7,7 +7,6 @@ import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.*;
-import service.UnauthorizedException;
 
 public class Server {
 
@@ -15,18 +14,28 @@ public class Server {
     private RegisterService registerService;
     private LoginService loginService;
     private MemoryDataAccess dataAccess;
-
+    private ClearService clearService;
+    private LogoutService logoutService;
+    private CreateGameService createGameService;
+    private ListGamesService listGamesService;
+    private JoinService joinService;
 
     public Server() {
         dataAccess = new MemoryDataAccess();
         registerService = new RegisterService(dataAccess);
         loginService = new LoginService(dataAccess);
+        clearService = new ClearService(dataAccess);
+        logoutService = new LogoutService(dataAccess);
+        //createGameService = new CreateGameService(dataAccess);
+        //listGamesService = new  ListGamesService(dataAccess);
+        //joinService = new JoinService(joinService);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clearHandler);
         server.post("user", this::registerHandler);
         server.post("session", this::loginHandler);
+        server.delete("session", this::logoutHandler);
     }
 
 
@@ -37,7 +46,6 @@ public class Server {
             //String reqJson = ctx.body();
             //var req = serializer.fromJson(reqJson, User.class);
             //var res = registerService.register(req);
-            var clearService = new ClearService(dataAccess);
             var res = clearService.clear();
             //ctx.result(serializer.toJson(res));
             ctx.status(200);
@@ -90,7 +98,21 @@ public class Server {
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
         }
+    }
 
+    private void logoutHandler(Context ctx) {
+        var serializer = new Gson();
+
+        try {
+            String authToken = ctx.header("Authorization");
+            var res = logoutService.logout(authToken);
+            ctx.status(200);
+            ctx.result(res);
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        }
     }
 
 
