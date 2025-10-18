@@ -5,6 +5,8 @@ import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
 
+import java.util.UUID;
+
 public class RegisterService {
     private final MemoryDataAccess dataAccess;
 
@@ -19,9 +21,16 @@ public class RegisterService {
         } else if (user.username() == null || user.password() == null) { //check that it has username and password
             throw new BadRequestException("Error: bad request");
         }
-        AuthData authData = new AuthData(user.username(), "whateveritsnotreal");
+
+        String authToken = generateToken();
+
+        AuthData authData = new AuthData(user.username(), authToken);
         dataAccess.saveUser(user);
         dataAccess.saveAuth(authData);
         return authData;
+    }
+
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }

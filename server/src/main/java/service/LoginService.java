@@ -4,6 +4,8 @@ import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
 
+import java.util.UUID;
+
 public class LoginService {
     private final MemoryDataAccess dataAccess;
 
@@ -17,7 +19,11 @@ public class LoginService {
         } else if (!dataAccess.userExists(user.username()) || !dataAccess.getPass(user.username()).equals(user.password())) {
             throw new UnauthorizedException("Error: unauthorized");
         }
+        String authToken = generateToken();
+        return new AuthData(user.username(), authToken);
+    }
 
-        return new AuthData(user.username(), "whateveritsnotreal");
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }
