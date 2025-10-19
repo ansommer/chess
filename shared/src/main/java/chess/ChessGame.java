@@ -18,10 +18,10 @@ public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board; //actually do I need to do something with this? How does it know what the board is?
     private ChessBoard testBoard;
-    private boolean BKingOrRook1Moved;
-    private boolean BKingOrRook2Moved;
-    private boolean WKingOrRook1Moved;
-    private boolean WKingOrRook2Moved;
+    private boolean bKingOrRook1Moved;
+    private boolean bKingOrRook2Moved;
+    private boolean wKingOrRook1Moved;
+    private boolean wKingOrRook2Moved;
 
     @Override
     public boolean equals(Object o) {
@@ -29,10 +29,10 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return BKingOrRook1Moved == chessGame.BKingOrRook1Moved
-                && BKingOrRook2Moved == chessGame.BKingOrRook2Moved
-                && WKingOrRook1Moved == chessGame.WKingOrRook1Moved
-                && WKingOrRook2Moved == chessGame.WKingOrRook2Moved
+        return bKingOrRook1Moved == chessGame.bKingOrRook1Moved
+                && bKingOrRook2Moved == chessGame.bKingOrRook2Moved
+                && wKingOrRook1Moved == chessGame.wKingOrRook1Moved
+                && wKingOrRook2Moved == chessGame.wKingOrRook2Moved
                 && teamTurn == chessGame.teamTurn
                 && Objects.equals(board, chessGame.board)
                 && Objects.equals(testBoard, chessGame.testBoard);
@@ -40,18 +40,18 @@ public class ChessGame {
 
     @Override
     public int hashCode() {
-        return Objects.hash(teamTurn, board, testBoard, BKingOrRook1Moved,
-                BKingOrRook2Moved, WKingOrRook1Moved, WKingOrRook2Moved);
+        return Objects.hash(teamTurn, board, testBoard, bKingOrRook1Moved,
+                bKingOrRook2Moved, wKingOrRook1Moved, wKingOrRook2Moved);
     }
 
     public ChessGame() {
         teamTurn = WHITE;
         board = new ChessBoard();
         board.resetBoard();
-        BKingOrRook1Moved = false;
-        WKingOrRook1Moved = false;
-        BKingOrRook2Moved = false;
-        WKingOrRook2Moved = false;
+        bKingOrRook1Moved = false;
+        wKingOrRook1Moved = false;
+        bKingOrRook2Moved = false;
+        wKingOrRook2Moved = false;
     }
 
     /**
@@ -101,17 +101,17 @@ public class ChessGame {
 
         if (piece.getPieceType().equals(KING)) {
             if (piece.getTeamColor().equals(WHITE)) {
-                if (canCastle(piece.getTeamColor(), startPosition, WKingOrRook1Moved, 1)) {
+                if (canCastle(piece.getTeamColor(), startPosition, wKingOrRook1Moved, 1)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 3), null));
                 }
-                if (canCastle(piece.getTeamColor(), startPosition, WKingOrRook2Moved, 2)) {
+                if (canCastle(piece.getTeamColor(), startPosition, wKingOrRook2Moved, 2)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 7), null));
                 }
             } else if (piece.getTeamColor().equals(BLACK)) {
-                if (canCastle(piece.getTeamColor(), startPosition, BKingOrRook1Moved, 1)) {
+                if (canCastle(piece.getTeamColor(), startPosition, bKingOrRook1Moved, 1)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 3), null));
                 }
-                if (canCastle(piece.getTeamColor(), startPosition, BKingOrRook2Moved, 2)) {
+                if (canCastle(piece.getTeamColor(), startPosition, bKingOrRook2Moved, 2)) {
                     moves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(), 7), null));
                 }
             }
@@ -201,13 +201,13 @@ public class ChessGame {
 
 
         if (piece.getPieceType() == KING) {
-            if (end.getColumn() == 3 && piece.getTeamColor().equals(BLACK) && canCastle(piece.getTeamColor(), start, BKingOrRook1Moved, 1)) {
+            if (end.getColumn() == 3 && piece.getTeamColor().equals(BLACK) && canCastle(piece.getTeamColor(), start, bKingOrRook1Moved, 1)) {
                 castle(start, end, piece, piece.getPieceType());
-            } else if (end.getColumn() == 3 && piece.getTeamColor().equals(WHITE) && canCastle(piece.getTeamColor(), start, WKingOrRook1Moved, 1)) {
+            } else if (end.getColumn() == 3 && piece.getTeamColor().equals(WHITE) && canCastle(piece.getTeamColor(), start, wKingOrRook1Moved, 1)) {
                 castle(start, end, piece, piece.getPieceType());
-            } else if (end.getColumn() == 7 && piece.getTeamColor().equals(BLACK) && canCastle(piece.getTeamColor(), start, BKingOrRook1Moved, 1)) {
+            } else if (end.getColumn() == 7 && piece.getTeamColor().equals(BLACK) && canCastle(piece.getTeamColor(), start, bKingOrRook1Moved, 1)) {
                 castle(start, end, piece, piece.getPieceType());
-            } else if (end.getColumn() == 7 && piece.getTeamColor().equals(WHITE) && canCastle(piece.getTeamColor(), start, WKingOrRook1Moved, 1)) {
+            } else if (end.getColumn() == 7 && piece.getTeamColor().equals(WHITE) && canCastle(piece.getTeamColor(), start, wKingOrRook1Moved, 1)) {
                 castle(start, end, piece, piece.getPieceType());
             } else {
                 board.addPiece(start, null);
@@ -237,14 +237,14 @@ public class ChessGame {
         boolean canCastle2;
         if (teamTurn == WHITE) {
             row = 1;
-            canCastle1 = WKingOrRook1Moved;
-            canCastle2 = WKingOrRook2Moved;
+            canCastle1 = wKingOrRook1Moved;
+            canCastle2 = wKingOrRook2Moved;
             castleMove1 = new ChessPosition(1, 3);
             castleMove2 = new ChessPosition(1, 7);
         } else {
             row = 8;
-            canCastle1 = BKingOrRook1Moved;
-            canCastle2 = BKingOrRook2Moved;
+            canCastle1 = bKingOrRook1Moved;
+            canCastle2 = bKingOrRook2Moved;
             castleMove1 = new ChessPosition(8, 3);
             castleMove2 = new ChessPosition(8, 7);
         }
@@ -265,22 +265,22 @@ public class ChessGame {
 
     public void checkIfMoved(ChessPiece piece, ChessPosition start) {
         if (piece.getPieceType() == KING && teamTurn == WHITE) {
-            WKingOrRook1Moved = true;
-            WKingOrRook2Moved = true;
+            wKingOrRook1Moved = true;
+            wKingOrRook2Moved = true;
         }
         if (piece.getPieceType() == KING && teamTurn == BLACK) {
-            BKingOrRook1Moved = true;
-            BKingOrRook2Moved = true;
+            bKingOrRook1Moved = true;
+            bKingOrRook2Moved = true;
         }
 
         if (piece.getPieceType() == ROOK && start.equals(new ChessPosition(1, 1))) {
-            WKingOrRook1Moved = true;
+            wKingOrRook1Moved = true;
         } else if (start.equals(new ChessPosition(1, 8))) {
-            WKingOrRook2Moved = true;
+            wKingOrRook2Moved = true;
         } else if (start.equals(new ChessPosition(8, 1))) {
-            BKingOrRook1Moved = true;
+            bKingOrRook1Moved = true;
         } else if (start.equals(new ChessPosition(8, 8))) {
-            BKingOrRook2Moved = true;
+            bKingOrRook2Moved = true;
         }
     }
 
