@@ -22,6 +22,9 @@ public class MemoryDataAccess implements DataAccess {
         users.get(username);
     }
 
+    public HashMap<String, GameData> getGames() {
+        return games;
+    }
 
     public void createGame(int gameId, String gameName) {
         GameData newGame = new GameData(gameId, null, null, gameName, new ChessGame());

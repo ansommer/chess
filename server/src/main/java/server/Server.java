@@ -3,9 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import datamodel.GameRequest;
-import datamodel.GameResponse;
-import datamodel.UserData;
+import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.*;
@@ -29,7 +27,7 @@ public class Server {
         clearService = new ClearService(dataAccess);
         logoutService = new LogoutService(dataAccess);
         createGameService = new CreateGameService(dataAccess);
-        //listGamesService = new  ListGamesService(dataAccess);
+        listGamesService = new ListGamesService(dataAccess);
         //joinService = new JoinService(joinService);
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
@@ -39,6 +37,7 @@ public class Server {
         server.post("session", this::loginHandler);
         server.delete("session", this::logoutHandler);
         server.post("game", this::createGameHandler);
+        server.get("game", this::listGamesHandler);
     }
 
 
@@ -82,7 +81,6 @@ public class Server {
         }
     }
 
-
     private void loginHandler(Context ctx) {
         var serializer = new Gson();
         try {
@@ -117,7 +115,6 @@ public class Server {
         }
     }
 
-
     private void createGameHandler(Context ctx) {
         var serializer = new Gson();
         try {
@@ -135,6 +132,20 @@ public class Server {
             ctx.result(errorMessage);
         } catch (BadRequestException e) {
             ctx.status(400);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        }
+    }
+
+    private void listGamesHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            String authToken = ctx.header("Authorization");
+            GameListResponse res = listGamesService.listGames(authToken);
+            ctx.status(200);
+            ctx.result(serializer.toJson(res));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
         }
