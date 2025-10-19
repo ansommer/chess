@@ -3,12 +3,12 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import datamodel.GameRequest;
-import datamodel.GameResponse;
-import datamodel.UserData;
+import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.*;
+import chess.ChessGame.TeamColor;
+
 
 public class Server {
 
@@ -29,8 +29,9 @@ public class Server {
         clearService = new ClearService(dataAccess);
         logoutService = new LogoutService(dataAccess);
         createGameService = new CreateGameService(dataAccess);
-        //listGamesService = new  ListGamesService(dataAccess);
-        //joinService = new JoinService(joinService);
+        listGamesService = new ListGamesService(dataAccess);
+        joinService = new JoinService(dataAccess);
+
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
@@ -39,6 +40,8 @@ public class Server {
         server.post("session", this::loginHandler);
         server.delete("session", this::logoutHandler);
         server.post("game", this::createGameHandler);
+        server.get("game", this::listGamesHandler);
+        server.put("game", this::joinGameHandler);
     }
 
 
@@ -82,7 +85,6 @@ public class Server {
         }
     }
 
-
     private void loginHandler(Context ctx) {
         var serializer = new Gson();
         try {
@@ -117,7 +119,6 @@ public class Server {
         }
     }
 
-
     private void createGameHandler(Context ctx) {
         var serializer = new Gson();
         try {
@@ -140,6 +141,45 @@ public class Server {
         }
     }
 
+    private void listGamesHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            String authToken = ctx.header("Authorization");
+            GameListResponse res = listGamesService.listGames(authToken);
+            ctx.status(200);
+            ctx.result(serializer.toJson(res));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        }
+    }
+
+    private void joinGameHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            String reqJson = ctx.body();
+            var req = serializer.fromJson(reqJson, JoinRequest.class);
+            int gameID = req.gameID();
+            TeamColor playerColor = req.playerColor();
+            String authToken = ctx.header("Authorization");
+            var res = joinService.join(authToken, gameID, playerColor);
+            ctx.status(200);
+            ctx.result(res);
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (TakenException e) {
+            ctx.status(403);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        }
+    }
 
     public int run(int desiredPort) {
         server.start(desiredPort);

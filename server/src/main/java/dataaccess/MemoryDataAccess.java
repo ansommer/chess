@@ -11,6 +11,7 @@ public class MemoryDataAccess implements DataAccess {
     private HashMap<String, UserData> users = new HashMap<>();
     private HashMap<String, String> authTokens = new HashMap<>(); //token, username
     private HashMap<String, GameData> games = new HashMap<>();
+    private int nextGameId = 1;
 
     @Override
     public void saveUser(UserData user) {
@@ -22,10 +23,29 @@ public class MemoryDataAccess implements DataAccess {
         users.get(username);
     }
 
+    public String getUserFromAuthToken(String authToken) {
+        return authTokens.get(authToken);
+    }
 
-    public void createGame(int gameId, String gameName) {
-        GameData newGame = new GameData(gameId, null, null, gameName, new ChessGame());
-        games.put(gameName, newGame);
+    public HashMap<String, GameData> getGames() {
+        return games;
+    }
+
+    public GameData getOneGame(int gameID) {
+        for (GameData g : games.values()) {
+            if (g.gameID() == gameID) {
+                return g;
+            }
+        }
+        return null;
+    }
+
+    public int getNextGameId() {
+        return nextGameId++;
+    }
+
+    public void createGame(GameData game) {
+        games.put(game.gameName(), game);
     }
 
     public void deleteAuth(String auth) {
