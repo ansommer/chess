@@ -44,16 +44,10 @@ public class Server {
         server.put("game", this::joinGameHandler);
     }
 
-
-    //It's not working, but I think I actually need to make it so it can create a game in order to test if it works...
     private void clearHandler(Context ctx) {
         var serializer = new Gson();
         try {
-            //String reqJson = ctx.body();
-            //var req = serializer.fromJson(reqJson, User.class);
-            //var res = registerService.register(req);
             var res = clearService.clear();
-            //ctx.result(serializer.toJson(res));
             ctx.status(200);
             ctx.result(res);
         } catch (Exception e) {
