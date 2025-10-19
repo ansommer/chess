@@ -1,4 +1,5 @@
 package chess;
+
 import java.util.Objects;
 
 public class PieceAndMove {
@@ -20,8 +21,12 @@ public class PieceAndMove {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true};
-        if (!(o instanceof PieceAndMove that)) {return false};
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PieceAndMove that)) {
+            return false;
+        }
         return Objects.equals(piece, that.piece) &&
                 Objects.equals(move, that.move);
     }
