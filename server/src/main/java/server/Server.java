@@ -3,6 +3,8 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import datamodel.GameRequest;
+import datamodel.GameResponse;
 import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -26,7 +28,7 @@ public class Server {
         loginService = new LoginService(dataAccess);
         clearService = new ClearService(dataAccess);
         logoutService = new LogoutService(dataAccess);
-        //createGameService = new CreateGameService(dataAccess);
+        createGameService = new CreateGameService(dataAccess);
         //listGamesService = new  ListGamesService(dataAccess);
         //joinService = new JoinService(joinService);
         server = Javalin.create(config -> config.staticFiles.add("web"));
@@ -36,6 +38,7 @@ public class Server {
         server.post("user", this::registerHandler);
         server.post("session", this::loginHandler);
         server.delete("session", this::logoutHandler);
+        server.post("game", this::createGameHandler);
     }
 
 
@@ -82,7 +85,6 @@ public class Server {
 
     private void loginHandler(Context ctx) {
         var serializer = new Gson();
-
         try {
             String reqJson = ctx.body();
             var req = serializer.fromJson(reqJson, UserData.class);
@@ -110,6 +112,29 @@ public class Server {
             ctx.result(res);
         } catch (UnauthorizedException e) {
             ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        }
+    }
+
+
+    private void createGameHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            String reqJson = ctx.body();
+            var req = serializer.fromJson(reqJson, GameRequest.class);
+            String gameName = req.gameName();
+            String authToken = ctx.header("Authorization");
+            var gameId = createGameService.createGame(authToken, gameName);
+            var res = new GameResponse(gameId);
+            ctx.status(200);
+            ctx.result(serializer.toJson(res));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (BadRequestException e) {
+            ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
         }

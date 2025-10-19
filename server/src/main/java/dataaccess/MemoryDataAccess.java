@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
@@ -19,6 +20,12 @@ public class MemoryDataAccess implements DataAccess {
     @Override
     public void getUser(String username) {
         users.get(username);
+    }
+
+
+    public void createGame(int gameId, String gameName) {
+        GameData newGame = new GameData(gameId, null, null, gameName, new ChessGame());
+        games.put(gameName, newGame);
     }
 
     public void deleteAuth(String auth) {

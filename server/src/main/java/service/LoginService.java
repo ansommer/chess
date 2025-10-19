@@ -20,6 +20,7 @@ public class LoginService {
             throw new UnauthorizedException("Error: unauthorized");
         }
         String authToken = generateToken();
+        //potentially I shouldn't be generateing one here... but I think it's correct.
         return new AuthData(user.username(), authToken);
     }
 
