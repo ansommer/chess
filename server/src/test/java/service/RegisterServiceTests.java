@@ -1,10 +1,9 @@
-package Service;
+package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.UserData;
 import org.junit.jupiter.api.*;
-import service.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
