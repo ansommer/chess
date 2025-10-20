@@ -14,5 +14,5 @@ public class ClearServiceTests {
     void setUp() {
         dataAccess = new MemoryDataAccess();
     }
-
+    
 }

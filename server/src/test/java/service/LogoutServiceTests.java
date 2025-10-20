@@ -14,4 +14,5 @@ public class LogoutServiceTests {
     void setUp() {
         dataAccess = new MemoryDataAccess();
     }
+
 }

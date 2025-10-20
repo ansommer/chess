@@ -24,8 +24,6 @@ public class RegisterServiceTests {
         assertNotNull(res);
         assertEquals("validUsername", res.username());
         assertNotNull(res.authToken());
-        //String expectedResult = "{ \"username\": \"validUsername\", \"password\": \"validPassword\", \"email\": \"email@gmail.com\" }";
-        //assertEquals(expectedResult, register());
         assertTrue(dataAccess.userExists("validUsername"));
         assertEquals("validPassword", dataAccess.getPass("validUsername"));
     }
