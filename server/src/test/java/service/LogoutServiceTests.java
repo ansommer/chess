@@ -1,7 +1,5 @@
 package service;
 
-import com.google.gson.JsonObject;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
