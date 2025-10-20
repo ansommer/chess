@@ -1,22 +1,16 @@
-import chess.ChessGame;
+package Service;
+
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.*;
-import passoff.model.*;
-import server.Server;
 import service.*;
-
-import java.net.HttpURLConnection;
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Service {
+public class RegisterServiceTests {
 
     private MemoryDataAccess dataAccess;
-    private RegisterService registerService;
 
     @BeforeEach
     void setUp() {
