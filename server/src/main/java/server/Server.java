@@ -3,7 +3,6 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccess;
 import datamodel.*;
 import io.javalin.*;
@@ -30,7 +29,7 @@ public class Server {
         try {
             dataAccess = new MySQLDataAccess();
         } catch (DataAccessException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
             return;
         }
         registerService = new RegisterService(dataAccess);
@@ -54,7 +53,6 @@ public class Server {
     }
 
     private void clearHandler(Context ctx) {
-        var serializer = new Gson();
         try {
             var res = clearService.clear();
             ctx.status(200);
@@ -108,8 +106,6 @@ public class Server {
     }
 
     private void logoutHandler(Context ctx) {
-        var serializer = new Gson();
-
         try {
             String authToken = ctx.header("Authorization");
             var res = logoutService.logout(authToken);
