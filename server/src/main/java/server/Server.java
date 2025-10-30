@@ -1,8 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -15,7 +17,7 @@ public class Server {
     private final Javalin server;
     private RegisterService registerService;
     private LoginService loginService;
-    private MemoryDataAccess dataAccess;
+    private DataAccess dataAccess;
     private ClearService clearService;
     private LogoutService logoutService;
     private CreateGameService createGameService;
@@ -23,7 +25,14 @@ public class Server {
     private JoinService joinService;
 
     public Server() {
-        dataAccess = new MemoryDataAccess();
+        server = Javalin.create(config -> config.staticFiles.add("web"));
+
+        try {
+            dataAccess = new MySQLDataAccess();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         registerService = new RegisterService(dataAccess);
         loginService = new LoginService(dataAccess);
         clearService = new ClearService(dataAccess);
@@ -32,7 +41,6 @@ public class Server {
         listGamesService = new ListGamesService(dataAccess);
         joinService = new JoinService(dataAccess);
 
-        server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
         server.delete("db", this::clearHandler);
@@ -42,6 +50,7 @@ public class Server {
         server.post("game", this::createGameHandler);
         server.get("game", this::listGamesHandler);
         server.put("game", this::joinGameHandler);
+        //server.exception(ResponseException.class, this:: exceptionHandler); he made that class to handle like all the exceptions...?
     }
 
     private void clearHandler(Context ctx) {
