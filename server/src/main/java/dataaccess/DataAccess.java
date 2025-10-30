@@ -22,11 +22,13 @@ public interface DataAccess {
 
     void createGame(GameData game);
 
-    void deleteAuth(String auth);
+    void deleteAuth(String auth) throws DataAccessException;
 
     void saveAuth(AuthData auth) throws DataAccessException;
 
-    boolean authExists(String auth);
+    boolean authExists(String auth) throws DataAccessException;
+
+    String getAuth(String username) throws DataAccessException;
 
     String getPass(String username) throws DataAccessException;
 

@@ -21,12 +21,9 @@ public class LoginService {
         } else if (!dataAccess.userExists(user.username()) || !dataAccess.getPass(user.username()).equals(user.password())) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-        String authToken = generateToken();
-        dataAccess.saveAuth(new AuthData(user.username(), authToken));
+        String authToken = dataAccess.getAuth(user.username());
+        //dataAccess.saveAuth(new AuthData(user.username(), authToken));
         return new AuthData(user.username(), authToken);
     }
 
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 }

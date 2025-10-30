@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.GameData;
 import datamodel.GameListResponse;
@@ -15,7 +16,7 @@ public class ListGamesService {
         this.dataAccess = dataAccess;
     }
 
-    public GameListResponse listGames(String authToken) {
+    public GameListResponse listGames(String authToken) throws DataAccessException {
         if (authToken == null || !dataAccess.authExists(authToken)) {
             throw new UnauthorizedException("Error: unauthorized");
         }

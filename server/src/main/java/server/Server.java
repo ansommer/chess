@@ -83,6 +83,9 @@ public class Server {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -119,6 +122,9 @@ public class Server {
             ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -141,6 +147,9 @@ public class Server {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -155,6 +164,9 @@ public class Server {
             ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -181,6 +193,9 @@ public class Server {
             ctx.status(403);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
         }
     }
 

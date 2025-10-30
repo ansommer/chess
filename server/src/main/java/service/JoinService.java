@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.GameData;
 import chess.ChessGame.TeamColor;
@@ -15,7 +16,7 @@ public class JoinService {
         this.dataAccess = dataAccess;
     }
 
-    public String join(String authToken, int gameID, TeamColor playerColor) {
+    public String join(String authToken, int gameID, TeamColor playerColor) throws DataAccessException {
         GameData game = dataAccess.getOneGame(gameID);
         String username = dataAccess.getUserFromAuthToken(authToken);
 

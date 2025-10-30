@@ -65,11 +65,11 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
 
-    private int updateTable(String statement, List<Object> values) throws DataAccessException {
+    private int updateTable(String statement, Object... values) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < values.size(); i++) {
-                    Object param = values.get(i);
+                for (int i = 0; i < values.length; i++) {
+                    Object param = values[i];
                     if (param instanceof String p) {
                         ps.setString(i + 1, p);
                     } else if (param instanceof Integer p) {
@@ -97,15 +97,15 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void saveUser(UserData user) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        List<Object> userList = List.of(user.username(), user.password(), user.email());
-        updateTable(statement, userList);
+        //List<Object> userList = List.of(user.username(), user.password(), user.email());
+        updateTable(statement, user.username(), user.password(), user.email());
     }
 
     @Override
     public void saveAuth(AuthData auth) throws DataAccessException {
         var statement = "INSERT INTO authTokens (authToken, username) VALUES (?, ?)";
-        List<Object> authList = List.of(auth.authToken(), auth.username());
-        updateTable(statement, authList);
+        //List<Object> authList = List.of(auth.authToken(), auth.username());
+        updateTable(statement, auth.authToken(), auth.username());
     }
 
     @Override
@@ -155,21 +155,53 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void deleteAuth(String auth) {
-
+    public void deleteAuth(String auth) throws DataAccessException {
+        String statement = "DELETE FROM authTokens WHERE authToken = ?";
+        updateTable(statement, auth);
     }
 
 
     @Override
-    public boolean authExists(String auth) {
+    public boolean authExists(String auth) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken FROM authTokens WHERE authToken = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get auth", e);
+        }
         return false;
+    }
+
+    @Override
+    public String getAuth(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken FROM authTokens WHERE username = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return (rs.getString("authToken")
+                        );
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get auth", e);
+        }
+        return null;
     }
 
     @Override
     public String getPass(String username) throws DataAccessException {
         UserData user = getUser(username);
-
-        return "";
+        return user.password();
     }
 
     @Override
@@ -179,9 +211,9 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        updateTable("TRUNCATE users", List.of());
-        updateTable("TRUNCATE games", List.of());
-        updateTable("TRUNCATE authTokens", List.of());
+        updateTable("TRUNCATE users");
+        updateTable("TRUNCATE games");
+        updateTable("TRUNCATE authTokens");
     }
 }
 
