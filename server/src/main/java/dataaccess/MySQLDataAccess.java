@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
@@ -101,8 +102,20 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void getUser(String username) {
-
+    public void getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM users WHERE username = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        rs.getString("username");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get user", e);
+        }
     }
 
     @Override
