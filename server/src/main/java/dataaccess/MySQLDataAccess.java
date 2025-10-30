@@ -103,9 +103,12 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void saveAuth(AuthData auth) throws DataAccessException {
-        var statement = "INSERT INTO authTokens (authToken, username) VALUES (?, ?)";
-        //List<Object> authList = List.of(auth.authToken(), auth.username());
-        updateTable(statement, auth.authToken(), auth.username());
+        String statement = """
+                INSERT INTO authTokens (username, authToken) 
+                VALUES (?, ?) 
+                ON DUPLICATE KEY UPDATE authToken = VALUES(authToken)
+                """;
+        updateTable(statement, auth.username(), auth.authToken());
     }
 
     @Override
