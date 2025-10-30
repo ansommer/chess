@@ -1,12 +1,19 @@
 package dataaccess;
 
+import chess.ChessGame;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
 
+import java.sql.ResultSet;
+import java.util.List;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class MySQLDataAccess implements DataAccess {
 
@@ -16,7 +23,7 @@ public class MySQLDataAccess implements DataAccess {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS User (
+            CREATE TABLE IF NOT EXISTS users (
               `username` varchar(50) NOT NULL,
               `password` varchar(50) NOT NULL,
               `email` varchar(200) NOT NULL,
@@ -25,7 +32,7 @@ public class MySQLDataAccess implements DataAccess {
             """,
 
             """
-            CREATE TABLE IF NOT EXISTS Game (
+            CREATE TABLE IF NOT EXISTS games (
               `gameID` int NOT NULL,
               `whiteUsername` varchar(50) DEFAULT NULL,
               `blackUsername` varchar(50) DEFAULT NULL,
@@ -36,7 +43,7 @@ public class MySQLDataAccess implements DataAccess {
             """,
 
             """
-            CREATE TABLE IF NOT EXISTS Auth (
+            CREATE TABLE IF NOT EXISTS authTokens (
               `authToken` text NOT NULL,
               `username` varchar(50) NOT NULL,
               PRIMARY KEY (`username`)
@@ -57,9 +64,40 @@ public class MySQLDataAccess implements DataAccess {
         }
     }
 
-    @Override
-    public void saveUser(UserData user) {
+    private int updateTable(String statement, List<Object> values) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < values.size(); i++) {
+                    Object param = values.get(i);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    } else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    } else if (param instanceof ChessGame p) { // not sure if this is right
+                        ps.setString(i + 1, p.toString());
+                    } else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
+                }
+                ps.executeUpdate();
 
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to configure database", e);
+        }
+    }
+
+    @Override
+    public void saveUser(UserData user) throws DataAccessException {
+        var statement = "INSTERT INTO User (username, password, email) VALUES (?, ?, ?)";
+        List<Object> userList = List.of(user.username(), user.password(), user.email());
+        updateTable(statement, userList);
     }
 
     @Override
@@ -99,7 +137,7 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void saveAuth(AuthData auth) {
-
+        //authTokens.put(auth.authToken(), auth.username());
     }
 
     @Override
@@ -114,6 +152,7 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public boolean userExists(String username) {
+        //return users.containsKey(username);
         return false;
     }
 
