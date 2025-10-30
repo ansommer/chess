@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
@@ -8,9 +9,9 @@ import datamodel.UserData;
 import java.util.UUID;
 
 public class RegisterService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public RegisterService(MemoryDataAccess dataAccess) {
+    public RegisterService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 

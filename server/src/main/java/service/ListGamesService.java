@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import datamodel.GameData;
 import datamodel.GameListResponse;
@@ -8,9 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ListGamesService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public ListGamesService(MemoryDataAccess dataAccess) {
+    public ListGamesService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 

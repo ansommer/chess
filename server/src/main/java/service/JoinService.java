@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import datamodel.GameData;
 import chess.ChessGame.TeamColor;
@@ -8,9 +9,9 @@ import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 
 public class JoinService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public JoinService(MemoryDataAccess dataAccess) {
+    public JoinService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 

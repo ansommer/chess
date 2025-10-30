@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
@@ -7,9 +8,9 @@ import datamodel.UserData;
 import java.util.UUID;
 
 public class LoginService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public LoginService(MemoryDataAccess dataAccess) {
+    public LoginService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 

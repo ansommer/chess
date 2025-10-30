@@ -1,13 +1,14 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
 
 public class LogoutService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public LogoutService(MemoryDataAccess dataAccess) {
+    public LogoutService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 

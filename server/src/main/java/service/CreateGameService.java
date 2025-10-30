@@ -1,16 +1,14 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
+import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
-import datamodel.AuthData;
 import datamodel.GameData;
-import datamodel.UserData;
 
 public class CreateGameService {
-    private final MemoryDataAccess dataAccess;
+    private final DataAccess dataAccess;
 
-    public CreateGameService(MemoryDataAccess dataAccess) {
+    public CreateGameService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
 
