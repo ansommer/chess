@@ -102,6 +102,10 @@ public class Server {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
         }
     }
 

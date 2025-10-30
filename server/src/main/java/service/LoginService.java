@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
@@ -14,7 +15,7 @@ public class LoginService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData login(UserData user) throws UnauthorizedException {
+    public AuthData login(UserData user) throws UnauthorizedException, DataAccessException {
         if (user.username() == null || user.password() == null) { //check that it has username and password
             throw new BadRequestException("Error: bad request");
         } else if (!dataAccess.userExists(user.username()) || !dataAccess.getPass(user.username()).equals(user.password())) {

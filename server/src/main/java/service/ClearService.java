@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 
 public class ClearService {
@@ -10,7 +11,7 @@ public class ClearService {
         this.dataAccess = dataAccess;
     }
 
-    public String clear() {
+    public String clear() throws DataAccessException {
         //are there any kind of exceptions I need to put here?
         dataAccess.clear();
         return "{}";
