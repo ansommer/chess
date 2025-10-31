@@ -22,6 +22,8 @@ public class MySQLDataAccess implements DataAccess {
         configureDatabase();
     }
 
+    private int nextGameId = 1;
+    
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS users (
@@ -74,8 +76,11 @@ public class MySQLDataAccess implements DataAccess {
                         ps.setString(i + 1, p);
                     } else if (param instanceof Integer p) {
                         ps.setInt(i + 1, p);
-                    } else if (param instanceof ChessGame p) { // not sure if this is right
+                    } else if (param instanceof ChessGame p) {
                         ps.setString(i + 1, p.toString());
+                        //If it needs to be json try this
+                        //String json = new Gson().toJson(p);
+                        //ps.setString(i + 1, json);
                     } else if (param == null) {
                         ps.setNull(i + 1, NULL);
                     }
@@ -97,7 +102,6 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void saveUser(UserData user) throws DataAccessException {
         var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        //List<Object> userList = List.of(user.username(), user.password(), user.email());
         updateTable(statement, user.username(), user.password(), user.email());
     }
 
@@ -149,12 +153,13 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public int getNextGameId() {
-        return 0;
+        return nextGameId++;
     }
 
     @Override
-    public void createGame(GameData game) {
-
+    public void createGame(GameData game) throws DataAccessException {
+        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        updateTable(statement, game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
     }
 
     @Override

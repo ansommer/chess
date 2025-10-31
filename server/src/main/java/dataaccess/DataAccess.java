@@ -20,7 +20,7 @@ public interface DataAccess {
 
     int getNextGameId();
 
-    void createGame(GameData game);
+    void createGame(GameData game) throws DataAccessException;
 
     void deleteAuth(String auth) throws DataAccessException;
 
