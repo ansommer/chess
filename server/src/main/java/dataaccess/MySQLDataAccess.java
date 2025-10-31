@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 import java.util.List;
@@ -47,9 +48,9 @@ public class MySQLDataAccess implements DataAccess {
 
             """
             CREATE TABLE IF NOT EXISTS authTokens (
-              `authToken` text NOT NULL,
+              `authToken` varchar(36) NOT NULL,
               `username` varchar(50) NOT NULL,
-              PRIMARY KEY (`username`)
+              PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
@@ -94,6 +95,7 @@ public class MySQLDataAccess implements DataAccess {
                 return 0;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new DataAccessException("Unable to update table", e);
         }
     }
@@ -104,14 +106,14 @@ public class MySQLDataAccess implements DataAccess {
         updateTable(statement, user.username(), user.password(), user.email());
     }
 
+
     @Override
     public void saveAuth(AuthData auth) throws DataAccessException {
         String statement = """
-                INSERT INTO authTokens (username, authToken) 
+                INSERT INTO authTokens (authToken, username) 
                 VALUES (?, ?) 
-                ON DUPLICATE KEY UPDATE authToken = VALUES(authToken)
                 """;
-        updateTable(statement, auth.username(), auth.authToken());
+        updateTable(statement, auth.authToken(), auth.username());
     }
 
     @Override
