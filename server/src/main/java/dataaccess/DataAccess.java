@@ -12,11 +12,11 @@ public interface DataAccess {
 
     UserData getUser(String username) throws DataAccessException;
 
-    String getUserFromAuthToken(String authToken);
+    String getUserFromAuthToken(String authToken) throws DataAccessException;
 
-    HashMap<String, GameData> getGames();
+    HashMap<String, GameData> getGames() throws DataAccessException;
 
-    GameData getOneGame(int gameID);
+    GameData getOneGame(int gameID) throws DataAccessException;
 
     int getNextGameId();
 
