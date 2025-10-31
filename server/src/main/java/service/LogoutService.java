@@ -1,10 +1,9 @@
 package service;
 
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import datamodel.AuthData;
-import datamodel.UserData;
+import dataaccess.MySQLDataAccessException;
+
 
 public class LogoutService {
     private final DataAccess dataAccess;
@@ -13,7 +12,7 @@ public class LogoutService {
         this.dataAccess = dataAccess;
     }
 
-    public String logout(String authToken) throws UnauthorizedException, DataAccessException {
+    public String logout(String authToken) throws UnauthorizedException, MySQLDataAccessException {
         if (authToken == null || !dataAccess.authExists(authToken)) {
             throw new UnauthorizedException("Error: unauthorized");
         }

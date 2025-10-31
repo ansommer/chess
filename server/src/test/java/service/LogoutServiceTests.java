@@ -1,6 +1,9 @@
 package service;
 
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import datamodel.AuthData;
 import datamodel.UserData;
 import org.junit.jupiter.api.*;
@@ -8,11 +11,12 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LogoutServiceTests {
-    private MemoryDataAccess dataAccess;
+    private DataAccess dataAccess;
 
     @BeforeEach
-    void setUp() {
-        dataAccess = new MemoryDataAccess();
+    void setUp() throws DataAccessException {
+        dataAccess = new MySQLDataAccess();
+        dataAccess.clear();
     }
 
     @Test

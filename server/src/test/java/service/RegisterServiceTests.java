@@ -1,19 +1,23 @@
 package service;
 
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import datamodel.UserData;
 import org.junit.jupiter.api.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterServiceTests {
 
-    private MemoryDataAccess dataAccess;
+    private DataAccess dataAccess;
 
     @BeforeEach
-    void setUp() {
-        dataAccess = new MemoryDataAccess();
+    void setUp() throws DataAccessException {
+        dataAccess = new MySQLDataAccess();
+        dataAccess.clear();
     }
 
     @Test
@@ -25,7 +29,7 @@ public class RegisterServiceTests {
         assertEquals("validUsername", res.username());
         assertNotNull(res.authToken());
         assertTrue(dataAccess.userExists("validUsername"));
-        assertEquals("validPassword", dataAccess.getPass("validUsername"));
+        assertTrue(BCrypt.checkpw("validPassword", dataAccess.getPass("validUsername")));
     }
 
     @Test

@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccessException;
 import datamodel.GameData;
 import chess.ChessGame.TeamColor;
 
@@ -16,7 +16,7 @@ public class JoinService {
         this.dataAccess = dataAccess;
     }
 
-    public String join(String authToken, int gameID, TeamColor playerColor) throws DataAccessException {
+    public String join(String authToken, int gameID, TeamColor playerColor) throws MySQLDataAccessException {
         GameData game = dataAccess.getOneGame(gameID);
         String username = dataAccess.getUserFromAuthToken(authToken);
 
@@ -26,14 +26,20 @@ public class JoinService {
             throw new BadRequestException("Error: bad request");
         }
 
-        if (playerColor.equals(WHITE) && game.whiteUsername() == null) {
-            GameData updatedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-            dataAccess.createGame(updatedGame);
-        } else if (playerColor.equals(BLACK) && game.blackUsername() == null) {
-            GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-            dataAccess.createGame(updatedGame);
-        } else {
-            throw new TakenException("Error: already taken");
+        if (playerColor.equals(WHITE)) {
+            if (game.whiteUsername() == null) {
+                GameData updatedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                dataAccess.createGame(updatedGame);
+            } else {
+                throw new TakenException("Error: already taken");
+            }
+        } else if (playerColor.equals(BLACK)) {
+            if (game.blackUsername() == null) {
+                GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                dataAccess.createGame(updatedGame);
+            } else {
+                throw new TakenException("Error: already taken");
+            }
         }
 
         return "{}";

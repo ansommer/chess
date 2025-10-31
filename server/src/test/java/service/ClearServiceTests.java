@@ -1,8 +1,10 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccess;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
@@ -13,11 +15,12 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTests {
-    private MemoryDataAccess dataAccess;
+    private DataAccess dataAccess;
 
     @BeforeEach
-    void setUp() {
-        dataAccess = new MemoryDataAccess();
+    void setUp() throws DataAccessException {
+        dataAccess = new MySQLDataAccess();
+        dataAccess.clear();
     }
 
     @Test

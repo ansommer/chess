@@ -8,31 +8,31 @@ import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 public interface DataAccess {
-    void saveUser(UserData user) throws DataAccessException;
+    void saveUser(UserData user) throws MySQLDataAccessException;
 
-    UserData getUser(String username) throws DataAccessException;
+    UserData getUser(String username) throws MySQLDataAccessException;
 
-    String getUserFromAuthToken(String authToken) throws DataAccessException;
+    String getUserFromAuthToken(String authToken) throws MySQLDataAccessException;
 
-    HashMap<String, GameData> getGames() throws DataAccessException;
+    HashMap<String, GameData> getGames() throws MySQLDataAccessException;
 
-    GameData getOneGame(int gameID) throws DataAccessException;
+    GameData getOneGame(int gameID) throws MySQLDataAccessException;
 
     int getNextGameId();
 
-    void createGame(GameData game) throws DataAccessException;
+    void createGame(GameData game) throws MySQLDataAccessException;
 
-    void deleteAuth(String auth) throws DataAccessException;
+    void deleteAuth(String auth) throws MySQLDataAccessException;
 
-    void saveAuth(AuthData auth) throws DataAccessException;
+    void saveAuth(AuthData auth) throws MySQLDataAccessException;
 
-    boolean authExists(String auth) throws DataAccessException;
+    boolean authExists(String auth) throws MySQLDataAccessException;
 
-    String getAuth(String username) throws DataAccessException;
+    String getAuth(String username) throws MySQLDataAccessException;
 
-    String getPass(String username) throws DataAccessException;
+    String getPass(String username) throws MySQLDataAccessException;
 
-    boolean userExists(String username) throws DataAccessException;
+    boolean userExists(String username) throws MySQLDataAccessException;
 
-    void clear() throws DataAccessException;
+    void clear() throws MySQLDataAccessException;
 }

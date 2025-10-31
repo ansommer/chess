@@ -2,8 +2,8 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccessException;
 import datamodel.GameData;
 
 public class CreateGameService {
@@ -13,7 +13,7 @@ public class CreateGameService {
         this.dataAccess = dataAccess;
     }
 
-    public int createGame(String authToken, String gameName) throws DataAccessException {
+    public int createGame(String authToken, String gameName) throws MySQLDataAccessException {
         if (authToken == null || !dataAccess.authExists(authToken)) {
             throw new UnauthorizedException("Error: unauthorized");
         } else if (gameName == null) { //I think that's what I'm supposed to do here

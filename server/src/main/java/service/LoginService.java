@@ -1,10 +1,11 @@
 package service;
 
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccessException;
 import datamodel.AuthData;
 import datamodel.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -15,10 +16,10 @@ public class LoginService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData login(UserData user) throws UnauthorizedException, DataAccessException {
+    public AuthData login(UserData user) throws UnauthorizedException, MySQLDataAccessException {
         if (user.username() == null || user.password() == null) { //check that it has username and password
             throw new BadRequestException("Error: bad request");
-        } else if (!dataAccess.userExists(user.username()) || !dataAccess.getPass(user.username()).equals(user.password())) {
+        } else if (!dataAccess.userExists(user.username()) || !BCrypt.checkpw(user.password(), dataAccess.getPass(user.username()))) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         String authToken = generateToken();

@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySQLDataAccessException;
 import datamodel.AuthData;
 import datamodel.UserData;
 
@@ -15,7 +16,8 @@ public class RegisterService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData register(UserData user) throws DataAccessException {
+    public AuthData register(UserData user) throws MySQLDataAccessException, DataAccessException, BadRequestException {
+
 
         if (dataAccess.userExists(user.username())) { //check that it's not already taken
             throw new DataAccessException("Error: already taken");

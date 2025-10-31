@@ -19,7 +19,7 @@ import static java.sql.Types.NULL;
 
 public class MySQLDataAccess implements DataAccess {
 
-    public MySQLDataAccess() throws DataAccessException {
+    public MySQLDataAccess() throws MySQLDataAccessException {
         configureDatabase();
     }
 
@@ -29,7 +29,7 @@ public class MySQLDataAccess implements DataAccess {
             """
             CREATE TABLE IF NOT EXISTS users (
               `username` varchar(50) NOT NULL,
-              `password` varchar(50) NOT NULL,
+              `password` varchar(60) NOT NULL,
               `email` varchar(200) NOT NULL,
               PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
@@ -55,7 +55,7 @@ public class MySQLDataAccess implements DataAccess {
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws MySQLDataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
@@ -64,11 +64,11 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to configure database", e);
+            throw new MySQLDataAccessException("Error: Unable to configure database", e);
         }
     }
 
-    private int updateTable(String statement, Object... values) throws DataAccessException {
+    private int updateTable(String statement, Object... values) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < values.length; i++) {
@@ -96,19 +96,24 @@ public class MySQLDataAccess implements DataAccess {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DataAccessException("Unable to update table", e);
+            throw new MySQLDataAccessException("Error: Unable to update table", e);
         }
     }
 
     @Override
-    public void saveUser(UserData user) throws DataAccessException {
-        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        updateTable(statement, user.username(), user.password(), user.email());
+    public void saveUser(UserData user) throws MySQLDataAccessException {
+        try {
+            var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+            String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+            updateTable(statement, user.username(), hashedPassword, user.email());
+        } catch (Exception e) {
+            throw new MySQLDataAccessException("Error: Error: Unable to save user", e);
+        }
     }
 
 
     @Override
-    public void saveAuth(AuthData auth) throws DataAccessException {
+    public void saveAuth(AuthData auth) throws MySQLDataAccessException {
         String statement = """
                 INSERT INTO authTokens (authToken, username) 
                 VALUES (?, ?) 
@@ -117,7 +122,7 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM users WHERE username = ?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -132,13 +137,13 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get user", e);
+            throw new MySQLDataAccessException("Error: Unable to get user", e);
         }
         return null;
     }
 
     @Override
-    public String getUserFromAuthToken(String authToken) throws DataAccessException {
+    public String getUserFromAuthToken(String authToken) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username FROM authTokens WHERE authToken = ?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -151,13 +156,13 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get username", e);
+            throw new MySQLDataAccessException("Error: Unable to get username", e);
         }
         return null;
     }
 
     @Override
-    public HashMap<String, GameData> getGames() throws DataAccessException {
+    public HashMap<String, GameData> getGames() throws MySQLDataAccessException {
         HashMap<String, GameData> games = new HashMap<>();
 
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -179,14 +184,14 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get games", e);
+            throw new MySQLDataAccessException("Error: Unable to get games", e);
         }
 
         return games;
     }
 
     @Override
-    public GameData getOneGame(int gameID) throws DataAccessException {
+    public GameData getOneGame(int gameID) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = """
                     SELECT gameID, whiteUsername, blackUsername, gameName, game
@@ -206,7 +211,7 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get game", e);
+            throw new MySQLDataAccessException("Error: Unable to get game", e);
         }
         return null;
     }
@@ -217,7 +222,7 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public void createGame(GameData game) throws MySQLDataAccessException {
         var statement =
                 """
                         INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game)
@@ -236,14 +241,14 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
-    public void deleteAuth(String auth) throws DataAccessException {
+    public void deleteAuth(String auth) throws MySQLDataAccessException {
         String statement = "DELETE FROM authTokens WHERE authToken = ?";
         updateTable(statement, auth);
     }
 
 
     @Override
-    public boolean authExists(String auth) throws DataAccessException {
+    public boolean authExists(String auth) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken FROM authTokens WHERE authToken = ?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -255,13 +260,13 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get auth", e);
+            throw new MySQLDataAccessException("Error: Unable to find auth", e);
         }
         return false;
     }
 
     @Override
-    public String getAuth(String username) throws DataAccessException {
+    public String getAuth(String username) throws MySQLDataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken FROM authTokens WHERE username = ?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -274,24 +279,32 @@ public class MySQLDataAccess implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unable to get auth", e);
+            throw new MySQLDataAccessException("Error: Unable to get auth", e);
         }
         return null;
     }
 
     @Override
-    public String getPass(String username) throws DataAccessException {
+    public String getPass(String username) throws MySQLDataAccessException {
         UserData user = getUser(username);
+        if (user == null) {
+            throw new MySQLDataAccessException("Error: Unable to get password");
+        }
         return user.password();
     }
 
     @Override
-    public boolean userExists(String username) throws DataAccessException {
-        return getUser(username) != null;
+    public boolean userExists(String username) throws MySQLDataAccessException {
+        try {
+            UserData user = getUser(username);
+            return user != null;
+        } catch (Exception e) {
+            throw new MySQLDataAccessException("Error: Unable to find user", e);
+        }
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() throws MySQLDataAccessException {
         updateTable("TRUNCATE users");
         updateTable("TRUNCATE games");
         updateTable("TRUNCATE authTokens");

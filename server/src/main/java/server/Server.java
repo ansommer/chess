@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccess;
+import dataaccess.MySQLDataAccessException;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -28,7 +29,7 @@ public class Server {
 
         try {
             dataAccess = new MySQLDataAccess();
-        } catch (DataAccessException e) {
+        } catch (MySQLDataAccessException e) {
             System.out.println(e);
             return;
         }
