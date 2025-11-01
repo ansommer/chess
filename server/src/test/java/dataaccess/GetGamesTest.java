@@ -32,7 +32,8 @@ public class GetGamesTest {
                                  NULL,
                                  NULL,
                                  'coolGame',
-                                 '{"teamTurn":"WHITE","bKingOrRook1Moved":false,"bKingOrRook2Moved":false,"wKingOrRook1Moved":false,"wKingOrRook2Moved":false}'
+                                 '{"teamTurn":"WHITE","bKingOrRook1Moved":false,"bKingOrRook2Moved":false,
+                                 "wKingOrRook1Moved":false,"wKingOrRook2Moved":false}'
                              )
                              """)) {
 

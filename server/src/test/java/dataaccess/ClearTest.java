@@ -28,7 +28,8 @@ public class ClearTest {
         }
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO users (username, password, email) VALUES ('validUsername', 'validPassword', 'validEmail')")) {
+                     "INSERT INTO users (username, password, email) " +
+                             "VALUES ('validUsername', 'validPassword', 'validEmail')")) {
             ps.executeUpdate();
         }
         try (Connection conn = DatabaseManager.getConnection();
@@ -40,7 +41,8 @@ public class ClearTest {
                                  NULL,
                                  NULL,
                                  'coolGame',
-                                 '{"teamTurn":"WHITE","bKingOrRook1Moved":false,"bKingOrRook2Moved":false,"wKingOrRook1Moved":false,"wKingOrRook2Moved":false}'
+                                 '{"teamTurn":"WHITE","bKingOrRook1Moved":false,"bKingOrRook2Moved":false,
+                                 "wKingOrRook1Moved":false,"wKingOrRook2Moved":false}'
                              )
                              """)) {
 

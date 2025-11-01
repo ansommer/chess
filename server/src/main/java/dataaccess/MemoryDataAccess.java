@@ -60,14 +60,6 @@ public class MemoryDataAccess implements DataAccess {
         return authTokens.containsKey(auth);
     }
 
-    /*@Override
-    public String getAuth(String username) {
-        if (authExists(username)) {
-            return authTokens.get(username);
-        }
-        return null;
-    }*/
-
     public String getPass(String username) {
         UserData user = users.get(username);
         return (user == null) ? null : user.password();
