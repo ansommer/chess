@@ -31,7 +31,7 @@ public class GetGamesTest {
                                  1,
                                  NULL,
                                  NULL,
-                                 'coolGame',
+                                 'randomGame',
                                  '{"teamTurn":"WHITE","bKingOrRook1Moved":false,"bKingOrRook2Moved":false,
                                  "wKingOrRook1Moved":false,"wKingOrRook2Moved":false}'
                              )
@@ -42,7 +42,7 @@ public class GetGamesTest {
         assertDoesNotThrow(() -> dataAccess.getGames());
         HashMap<String, GameData> games = dataAccess.getGames();
         assertEquals(games.size(), 1);
-        assertEquals("coolGame", games.get("1").gameName());
+        assertEquals("randomGame", games.get("1").gameName());
 
     }
 
