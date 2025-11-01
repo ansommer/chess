@@ -28,7 +28,7 @@ public interface DataAccess {
 
     boolean authExists(String auth) throws MySQLDataAccessException;
 
-    String getAuth(String username) throws MySQLDataAccessException;
+    //String getAuth(String username) throws MySQLDataAccessException;
 
     String getPass(String username) throws MySQLDataAccessException;
 

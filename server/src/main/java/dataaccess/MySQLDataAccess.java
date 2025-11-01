@@ -8,7 +8,6 @@ import datamodel.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
-import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -115,8 +114,8 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void saveAuth(AuthData auth) throws MySQLDataAccessException {
         String statement = """
-                INSERT INTO authTokens (authToken, username) 
-                VALUES (?, ?) 
+                INSERT INTO authTokens (authToken, username)
+                VALUES (?, ?)
                 """;
         updateTable(statement, auth.authToken(), auth.username());
     }
@@ -265,24 +264,6 @@ public class MySQLDataAccess implements DataAccess {
         return false;
     }
 
-    @Override
-    public String getAuth(String username) throws MySQLDataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken FROM authTokens WHERE username = ?";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return (rs.getString("authToken")
-                        );
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new MySQLDataAccessException("Error: Unable to get auth", e);
-        }
-        return null;
-    }
 
     @Override
     public String getPass(String username) throws MySQLDataAccessException {
