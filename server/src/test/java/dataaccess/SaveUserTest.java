@@ -1,15 +1,12 @@
 package dataaccess;
 
 import datamodel.UserData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.RegisterService;
-import dataaccess.MySQLDataAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class saveUserTest {
+public class SaveUserTest {
     private DataAccess dataAccess;
 
     @BeforeEach

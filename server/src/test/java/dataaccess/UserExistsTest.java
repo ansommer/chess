@@ -2,13 +2,11 @@ package dataaccess;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dataaccess.DataAccess;
 import datamodel.UserData;
 import org.junit.jupiter.api.*;
-import org.mindrot.jbcrypt.BCrypt;
 import service.RegisterService;
 
-public class userExistsTest {
+public class UserExistsTest {
 
     private DataAccess dataAccess;
 

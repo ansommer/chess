@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class saveAuthTest {
+public class SaveAuthTest {
 
     private DataAccess dataAccess;
 

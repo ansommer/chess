@@ -8,7 +8,7 @@ import service.RegisterService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class getUserTest {
+public class GetPassTest {
 
     private DataAccess dataAccess;
 
@@ -19,20 +19,18 @@ public class getUserTest {
     }
 
     @Test
-    public void getUserPositiveTest() throws Exception {
+    public void getPassPositiveTest() throws Exception {
         var registerService = new RegisterService(dataAccess);
         registerService.register(new UserData("validUsername", "validPassword", "email@gmail.com"));
-        assertDoesNotThrow(() -> dataAccess.getUser("validUsername"));
-        UserData res = dataAccess.getUser("validUsername");
-        assertEquals("validUsername", res.username());
-        assertTrue(BCrypt.checkpw("validPassword", res.password()));
-        assertEquals("email@gmail.com", res.email());
+        assertDoesNotThrow(() -> dataAccess.getPass("validUsername"));
+        String res = dataAccess.getPass("validUsername");
+        assertTrue(BCrypt.checkpw("validPassword", res));
     }
 
     @Test
-    public void getUserNegativeTest() throws Exception {
+    public void getPassNegativeTest() throws Exception {
         var registerService = new RegisterService(dataAccess);
         registerService.register(new UserData("validUsername", "validPassword", "email@gmail.com"));
-        assertNull(dataAccess.getUser("invalidUsername"));
+        assertThrows(MySQLDataAccessException.class, () -> dataAccess.getPass("invalidPass"));
     }
 }

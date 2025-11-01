@@ -77,7 +77,6 @@ public class MySQLDataAccess implements DataAccess {
                     } else if (param instanceof Integer p) {
                         ps.setInt(i + 1, p);
                     } else if (param instanceof ChessGame p) {
-                        //ps.setString(i + 1, p.toString());
                         String json = new Gson().toJson(p);
                         ps.setString(i + 1, json);
                     } else if (param == null) {

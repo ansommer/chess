@@ -3,7 +3,6 @@ package dataaccess;
 import datamodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
 import service.RegisterService;
 
 import java.sql.Connection;
@@ -13,7 +12,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class getUserFromAuthTokenTest {
+public class GetUserFromAuthTokenTest {
 
     private DataAccess dataAccess;
 
