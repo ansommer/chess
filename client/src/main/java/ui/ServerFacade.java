@@ -37,8 +37,10 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-    public AuthData login(UserData user) throws FacadeException {
-        return null;
+    public AuthData login(LoginRequest user) throws FacadeException {
+        var request = buildRequest("POST", "/session", user);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
     }
 
     public void logout(AuthData authData) throws FacadeException {

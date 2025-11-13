@@ -1,7 +1,8 @@
 package ui;
 
 public enum State {
-    PRELOGIN,
-    POSTLOGIN,
-    PLAYINGGAME
+    LOGGED_OUT,
+    LOGGED_IN,
+    PLAYING_GAME,
+    OBSERVING_GAME
 }
