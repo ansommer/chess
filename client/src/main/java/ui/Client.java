@@ -1,6 +1,6 @@
 package ui;
 
-public interface UI {
+public interface Client {
 }
 
 //maybe has help and quit. Maybe it's unnecessary though

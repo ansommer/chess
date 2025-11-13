@@ -3,14 +3,10 @@ package service;
 import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccess;
 import datamodel.AuthData;
-import datamodel.GameData;
 import datamodel.UserData;
 import org.junit.jupiter.api.*;
-
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 

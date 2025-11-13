@@ -1,6 +1,5 @@
 package dataaccess;
 
-import datamodel.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.RegisterService;

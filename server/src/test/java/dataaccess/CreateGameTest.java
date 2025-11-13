@@ -4,7 +4,6 @@ import chess.ChessGame;
 import datamodel.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.CreateGameService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

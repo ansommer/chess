@@ -2,7 +2,6 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccessException;
 import datamodel.GameData;
 

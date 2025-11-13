@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccessException;
 import datamodel.AuthData;
 import datamodel.UserData;

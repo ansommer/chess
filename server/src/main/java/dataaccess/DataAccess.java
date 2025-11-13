@@ -4,7 +4,6 @@ import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;
 
-import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 public interface DataAccess {
