@@ -30,8 +30,11 @@ public class ServerFacade {
 
 
     // I should probably make a special kind of exception
-    public void register(UserData user) throws FacadeException {
+    public AuthData register(UserData user) throws FacadeException {
         //maybe we actually return a user. who knows
+        var request = buildRequest("POST", "/user", user);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
     }
 
     public AuthData login(UserData user) throws FacadeException {
@@ -53,6 +56,14 @@ public class ServerFacade {
 
     public void joinGame(AuthData authData, ChessGame chessGame) throws FacadeException {
 
+    }
+
+    private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
+        try {
+            return client.send(request, BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new FacadeException(e.getMessage());
+        }
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
