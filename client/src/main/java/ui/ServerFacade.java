@@ -14,6 +14,7 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.HashMap;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -23,34 +24,34 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-    public void clear() throws Exception {
+    public void clear() throws FacadeException {
 
     }
 
 
     // I should probably make a special kind of exception
-    public void register(UserData user) throws Exception {
+    public void register(UserData user) throws FacadeException {
         //maybe we actually return a user. who knows
     }
 
-    public AuthData login(UserData user) throws Exception {
+    public AuthData login(UserData user) throws FacadeException {
         return null;
     }
 
-    public void logout(AuthData authData) throws Exception {
+    public void logout(AuthData authData) throws FacadeException {
 
     }
 
-    public ChessGame createGame(AuthData authData) throws Exception {
+    public ChessGame createGame(AuthData authData) throws FacadeException {
         //actually not sure what params this needs or if it should return ChessGame
         return null;
     }
 
-    public ChessGame listGames(AuthData authData) throws Exception {
+    public ChessGame listGames(AuthData authData) throws FacadeException {
         return null;
     }
 
-    public void joinGame(AuthData authData, ChessGame chessGame) throws Exception {
+    public void joinGame(AuthData authData, ChessGame chessGame) throws FacadeException {
 
     }
 
@@ -72,14 +73,16 @@ public class ServerFacade {
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws Exception {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws FacadeException {
         var status = response.statusCode();
         if ((status / 100) != 2) { //checking that it's a 200 success response, but any (ex. 204)
             var body = response.body();
             if (body != null) {
-                //throw the exception that I'm definitely going to make
+                var map = new Gson().fromJson(body, HashMap.class);
+                String message = map.get("message").toString();
+                throw new FacadeException(message);
             }
-            // throw also an exception
+            throw new FacadeException("Error: other failure - " + status);
         }
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
