@@ -21,7 +21,11 @@ public class PreLoginUI {
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+
+        while (state == State.LOGGED_OUT) {
+            if (result.equals("Goodbye!")) {
+                return;
+            }
             printPrompt();
             String line = scanner.nextLine();
             try {
@@ -33,6 +37,12 @@ public class PreLoginUI {
             }
         }
         System.out.println();
+        try {
+            new PostLoginUI().run(server, state);
+        } catch (Throwable ex) {
+            System.out.printf("Unable to start login server: %s%n", ex.getMessage());
+        }
+
     }
 
     public String eval(String input) {
@@ -43,6 +53,7 @@ public class PreLoginUI {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
+                case "quit" -> "Goodbye!";
                 default -> help();
             };
         } catch (Exception e) {
@@ -88,8 +99,6 @@ public class PreLoginUI {
             return String.format("You signed in as %s.", username);
         }
         throw new FacadeException("Error: Expected <username> <password>");
-        //actually this isn't right because it needs to not work if the password is wrong....
-
     }
 }
 
