@@ -50,7 +50,6 @@ public class Server {
         server.post("game", this::createGameHandler);
         server.get("game", this::listGamesHandler);
         server.put("game", this::joinGameHandler);
-        //server.exception(ResponseException.class, this:: exceptionHandler); he made that class to handle like all the exceptions...?
     }
 
     private void clearHandler(Context ctx) {

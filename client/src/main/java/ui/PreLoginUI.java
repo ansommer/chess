@@ -9,6 +9,7 @@ public class PreLoginUI {
     private String username = null;
     private String password = null;
     private String email = null;
+    private AuthData auth = null;
     private final ServerFacade server;
     private State state = State.LOGGED_OUT;
 
@@ -38,7 +39,7 @@ public class PreLoginUI {
         }
         System.out.println();
         try {
-            new PostLoginUI().run(server, state);
+            new PostLoginUI(server, state, auth).run();
         } catch (Throwable ex) {
             System.out.printf("Unable to start login server: %s%n", ex.getMessage());
         }
@@ -81,24 +82,22 @@ public class PreLoginUI {
             username = params[0];
             password = params[1];
             email = params[2];
-            server.register(new UserData(username, password, email));
+            auth = server.register(new UserData(username, password, email));
             state = State.LOGGED_IN;
-            //where did the authData go?
             return String.format("You signed in as %s.", username);
         }
-        throw new FacadeException("Error: Expected <username> <password> <email>");
+        throw new FacadeException("Error: Expected <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws FacadeException {
         if (params.length >= 2) {
             username = params[0];
             password = params[1];
-            server.login(new LoginRequest(username, password));
+            auth = server.login(new LoginRequest(username, password));
             state = State.LOGGED_IN;
-            //same here, what do I do with the auth?
             return String.format("You signed in as %s.", username);
         }
-        throw new FacadeException("Error: Expected <username> <password>");
+        throw new FacadeException("Error: Expected <USERNAME> <PASSWORD>");
     }
 }
 

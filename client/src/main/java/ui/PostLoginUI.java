@@ -1,15 +1,23 @@
 package ui;
 
+import datamodel.*;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class PostLoginUI {
-    //private final ServerFacade server;
 
-    public PostLoginUI() throws Exception {
+    private final ServerFacade server;
+    private final State state;
+    private final AuthData auth;
+
+    public PostLoginUI(ServerFacade server, State state, AuthData auth) throws Exception {
+        this.server = server;
+        this.state = state;
+        this.auth = auth;
     }
 
-    public void run(ServerFacade server, State state) throws Exception {
+    public void run() throws Exception {
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -37,6 +45,7 @@ public class PostLoginUI {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "create" -> create(params);
                 case "quit" -> "Goodbye!";
                 default -> help();
             };
@@ -56,6 +65,16 @@ public class PostLoginUI {
                 • quit
                 • help
                 """;
+    }
+
+    public String create(String... params) throws FacadeException {
+        if (params.length >= 1) {
+            String gameName = params[0];
+            String authToken = auth.authToken();
+            server.createGame(gameName, authToken);
+            return String.format("Game %s created!", gameName);
+        }
+        throw new FacadeException("Error: Expected <GAME NAME>");
     }
 
     private void printPrompt(State state) {

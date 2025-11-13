@@ -32,13 +32,13 @@ public class ServerFacade {
     // I should probably make a special kind of exception
     public AuthData register(UserData user) throws FacadeException {
         //maybe we actually return a user. who knows
-        var request = buildRequest("POST", "/user", user);
+        var request = buildRequest("POST", "/user", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public AuthData login(LoginRequest user) throws FacadeException {
-        var request = buildRequest("POST", "/session", user);
+        var request = buildRequest("POST", "/session", user, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
@@ -47,9 +47,12 @@ public class ServerFacade {
 
     }
 
-    public ChessGame createGame(AuthData authData) throws FacadeException {
-        //actually not sure what params this needs or if it should return ChessGame
-        return null;
+    public GameResponse createGame(String gameName, String authToken) throws FacadeException {
+        //how does it know the authdata is in the header???
+        var request = buildRequest("POST", "/game", new GameRequest(gameName), authToken);
+        var response = sendRequest(request);
+        //System.out.println("Raw body: " + response.body());
+        return handleResponse(response, GameResponse.class);
     }
 
     public ChessGame listGames(AuthData authData) throws FacadeException {
@@ -62,18 +65,25 @@ public class ServerFacade {
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
         try {
-            return client.send(request, BodyHandlers.ofString());
+            var response = client.send(request, BodyHandlers.ofString());
+            //System.out.println("DEBUG: Status code = " + response.statusCode());
+            //System.out.println("DEBUG: Body = " + response.body());
+            return response;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new FacadeException(e.getMessage());
         }
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("Authorization", authToken);
         }
         return request.build();
     }
