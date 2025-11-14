@@ -49,6 +49,7 @@ public class PostLoginUI {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "create" -> create(params);
+                case "list" -> list();
                 case "quit" -> "Goodbye!";
                 case "logout" -> logout();
                 case "join" -> join(params);
@@ -71,6 +72,17 @@ public class PostLoginUI {
                 • quit
                 • help
                 """;
+    }
+
+    public String list() throws FacadeException {
+        // do i need to check that it has no params?
+        GameListResponse gameResult = server.listGames(auth);
+        for (GameData game : gameResult.games()) {
+            String whitePlayer = (game.whiteUsername() != null) ? game.whiteUsername() : " ";
+            String blackPlayer = (game.blackUsername() != null) ? game.blackUsername() : " ";
+            System.out.printf("Game ID: %d, Name: %s, White player: %s, Black player: %s%n", game.gameID(), game.gameName(), whitePlayer, blackPlayer);
+        }
+        return "";
     }
 
     public String join(String... params) throws FacadeException {

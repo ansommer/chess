@@ -52,8 +52,11 @@ public class ServerFacade {
         return handleResponse(response, GameResponse.class);
     }
 
-    public ChessGame listGames(AuthData authData) throws FacadeException {
-        return null;
+    public GameListResponse listGames(AuthData authData) throws FacadeException {
+        String authToken = authData.authToken();
+        var request = buildRequest("GET", "/game", null, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, GameListResponse.class);
     }
 
     public void joinGame(AuthData authData, ChessGame chessGame) throws FacadeException {
