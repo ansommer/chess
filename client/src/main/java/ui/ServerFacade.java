@@ -9,7 +9,6 @@ import java.net.http.HttpRequest;
 import chess.ChessGame;
 import datamodel.*;
 
-import java.net.*;
 import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -28,8 +27,6 @@ public class ServerFacade {
 
     }
 
-
-    // I should probably make a special kind of exception
     public AuthData register(UserData user) throws FacadeException {
         //maybe we actually return a user. who knows
         var request = buildRequest("POST", "/user", user, null);
@@ -43,15 +40,15 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-    public void logout(AuthData authData) throws FacadeException {
-
+    public Void logout(AuthData authData) throws FacadeException {
+        var request = buildRequest("DELETE", "/session", null, authData.authToken());
+        var response = sendRequest(request);
+        return handleResponse(response, Void.class);
     }
 
     public GameResponse createGame(String gameName, String authToken) throws FacadeException {
-        //how does it know the authdata is in the header???
         var request = buildRequest("POST", "/game", new GameRequest(gameName), authToken);
         var response = sendRequest(request);
-        //System.out.println("Raw body: " + response.body());
         return handleResponse(response, GameResponse.class);
     }
 
@@ -66,8 +63,6 @@ public class ServerFacade {
     private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
         try {
             var response = client.send(request, BodyHandlers.ofString());
-            //System.out.println("DEBUG: Status code = " + response.statusCode());
-            //System.out.println("DEBUG: Body = " + response.body());
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,6 +103,9 @@ public class ServerFacade {
             throw new FacadeException("Error: other failure - " + status);
         }
         if (responseClass != null) {
+            if (response.body().equals("{}")) {
+                return null;
+            }
             return new Gson().fromJson(response.body(), responseClass);
         }
         return null;

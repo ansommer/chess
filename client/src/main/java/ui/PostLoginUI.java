@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class PostLoginUI {
 
     private final ServerFacade server;
-    private final State state;
-    private final AuthData auth;
+    private State state;
+    private AuthData auth;
 
     public PostLoginUI(ServerFacade server, State state, AuthData auth) throws Exception {
         this.server = server;
@@ -36,6 +36,9 @@ public class PostLoginUI {
             }
         }
         System.out.println();
+        if (state == State.LOGGED_OUT) {
+            new PreLoginUI("http://localhost:8080").run();
+        }
         return;
     }
 
@@ -47,6 +50,7 @@ public class PostLoginUI {
             return switch (cmd) {
                 case "create" -> create(params);
                 case "quit" -> "Goodbye!";
+                case "logout" -> logout();
                 default -> help();
             };
         } catch (Exception e) {
@@ -65,6 +69,12 @@ public class PostLoginUI {
                 • quit
                 • help
                 """;
+    }
+
+    public String logout() {
+        server.logout(auth);
+        state = State.LOGGED_OUT;
+        return "You have been logged out.";
     }
 
     public String create(String... params) throws FacadeException {
