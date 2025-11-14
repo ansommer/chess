@@ -35,7 +35,7 @@ public class GameUI {
             if (player == WHITE || player == null) {
                 WhiteBoard.print(SET_TEXT_COLOR_WHITE, SET_TEXT_COLOR_BLACK);
             } else if (player == BLACK) {
-                WhiteBoard.print(SET_TEXT_COLOR_BLACK, SET_TEXT_COLOR_WHITE);
+                BlackBoard.print(SET_TEXT_COLOR_BLACK, SET_TEXT_COLOR_WHITE);
             }
             printPrompt(state);
             String line = scanner.nextLine();
