@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame.TeamColor;
 import datamodel.*;
 
 import java.util.Arrays;
@@ -75,7 +76,6 @@ public class PostLoginUI {
     }
 
     public String list() throws FacadeException {
-        // do i need to check that it has no params?
         GameListResponse gameResult = server.listGames(auth);
         for (GameData game : gameResult.games()) {
             String whitePlayer = (game.whiteUsername() != null) ? game.whiteUsername() : " ";
@@ -87,11 +87,25 @@ public class PostLoginUI {
 
     public String join(String... params) throws FacadeException {
         if (params.length >= 2) {
-            var id = params[0];
-            var name = params[1].toUpperCase();
-            //join() depending black or white
+            int id = 0;
+            TeamColor player = null;
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Expected <ID> [WHITE|BLACK]");
+            }
+            var playerInput = params[1].toUpperCase();
+            if (playerInput.equals("WHITE")) {
+                player = TeamColor.WHITE;
+            } else if (playerInput.equals("BLACK")) {
+                player = TeamColor.BLACK;
+            } else {
+                throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
+            }
+            server.joinGame(auth.authToken(), id, player);
             state = State.PLAYING_GAME;
-            return String.format("You joined game %s as %s", id, name);
+            return String.format("You joined game %s as %s", id, player);
+
         }
         throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
     }

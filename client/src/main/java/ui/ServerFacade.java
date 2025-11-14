@@ -59,8 +59,10 @@ public class ServerFacade {
         return handleResponse(response, GameListResponse.class);
     }
 
-    public void joinGame(AuthData authData, ChessGame chessGame) throws FacadeException {
-
+    public void joinGame(String authToken, int gameID, ChessGame.TeamColor player) throws FacadeException {
+        var request = buildRequest("PUT", "/game", new JoinRequest(player, gameID), authToken);
+        var response = sendRequest(request);
+        handleResponse(response, Void.class);
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
