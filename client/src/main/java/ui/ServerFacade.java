@@ -40,10 +40,10 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-    public Void logout(AuthData authData) throws FacadeException {
+    public void logout(AuthData authData) throws FacadeException {
         var request = buildRequest("DELETE", "/session", null, authData.authToken());
         var response = sendRequest(request);
-        return handleResponse(response, Void.class);
+        handleResponse(response, Void.class);
     }
 
     public GameResponse createGame(String gameName, String authToken) throws FacadeException {

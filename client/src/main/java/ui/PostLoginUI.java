@@ -51,12 +51,14 @@ public class PostLoginUI {
                 case "create" -> create(params);
                 case "quit" -> "Goodbye!";
                 case "logout" -> logout();
+                case "join" -> join(params);
                 default -> help();
             };
         } catch (Exception e) {
             return e.getMessage();
         }
     }
+
 
     public String help() {
         return """
@@ -69,6 +71,17 @@ public class PostLoginUI {
                 • quit
                 • help
                 """;
+    }
+
+    public String join(String... params) throws FacadeException {
+        if (params.length >= 2) {
+            var id = params[0];
+            var name = params[1].toUpperCase();
+            //join() depending black or white
+            state = State.PLAYING_GAME;
+            return String.format("You joined game %s as %s", id, name);
+        }
+        throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
     }
 
     public String logout() {
