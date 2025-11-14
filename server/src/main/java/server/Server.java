@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccess;
@@ -80,7 +79,7 @@ public class Server {
             //chat was suggesting to make a helper class for the error message, so maybe do that at some point
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
-        } catch (BadRequestException e) {
+        } catch (LogoutService.BadRequestException e) {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
@@ -102,7 +101,7 @@ public class Server {
             ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
-        } catch (BadRequestException e) {
+        } catch (LogoutService.BadRequestException e) {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
@@ -144,7 +143,7 @@ public class Server {
             ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
-        } catch (BadRequestException e) {
+        } catch (LogoutService.BadRequestException e) {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
@@ -186,7 +185,7 @@ public class Server {
             ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
-        } catch (BadRequestException e) {
+        } catch (LogoutService.BadRequestException e) {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);

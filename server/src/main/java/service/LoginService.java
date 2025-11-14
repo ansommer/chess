@@ -1,6 +1,5 @@
 package service;
 
-import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.MySQLDataAccessException;
 import datamodel.AuthData;
@@ -18,7 +17,7 @@ public class LoginService {
 
     public AuthData login(UserData user) throws UnauthorizedException, MySQLDataAccessException {
         if (user.username() == null || user.password() == null) { //check that it has username and password
-            throw new BadRequestException("Error: bad request");
+            throw new LogoutService.BadRequestException("Error: bad request");
         } else if (!dataAccess.userExists(user.username()) || !BCrypt.checkpw(user.password(), dataAccess.getPass(user.username()))) {
             throw new UnauthorizedException("Error: unauthorized");
         }

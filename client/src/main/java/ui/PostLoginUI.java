@@ -1,7 +1,6 @@
 package ui;
 
 import chess.ChessGame.TeamColor;
-import commonMisconceptions.BadRequestException;
 import datamodel.*;
 
 import java.util.Arrays;

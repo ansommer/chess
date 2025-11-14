@@ -1,6 +1,5 @@
 package service;
 
-import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccessException;
@@ -16,13 +15,13 @@ public class RegisterService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData register(UserData user) throws MySQLDataAccessException, DataAccessException, BadRequestException {
+    public AuthData register(UserData user) throws MySQLDataAccessException, DataAccessException, LogoutService.BadRequestException {
 
 
         if (dataAccess.userExists(user.username())) { //check that it's not already taken
             throw new DataAccessException("Error: already taken");
         } else if (user.username() == null || user.password() == null) { //check that it has username and password
-            throw new BadRequestException("Error: bad request");
+            throw new LogoutService.BadRequestException("Error: bad request");
         }
 
         String authToken = generateToken();

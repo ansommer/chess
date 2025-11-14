@@ -1,7 +1,6 @@
 package service;
 
 import chess.ChessGame;
-import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccess;
@@ -50,7 +49,7 @@ public class JoinServiceTests {
         createGameService.createGame(authToken, "AwesomeGame");
 
 
-        BadRequestException e = assertThrows(BadRequestException.class, () -> joinService.join(authToken, 1, null));
+        LogoutService.BadRequestException e = assertThrows(LogoutService.BadRequestException.class, () -> joinService.join(authToken, 1, null));
         assertEquals("Error: bad request", e.getMessage());
     }
 

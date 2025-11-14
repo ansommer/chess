@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
 import dataaccess.MySQLDataAccessException;
 
 
@@ -18,5 +17,11 @@ public class LogoutService {
         }
         dataAccess.deleteAuth(authToken);
         return "{}";
+    }
+
+    public static class BadRequestException extends RuntimeException {
+        public BadRequestException(String message) {
+            super(message);
+        }
     }
 }

@@ -1,6 +1,5 @@
 package service;
 
-import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.MySQLDataAccessException;
 import datamodel.GameData;
@@ -23,7 +22,7 @@ public class JoinService {
         if (authToken == null || !dataAccess.authExists(authToken)) {
             throw new UnauthorizedException("Error: unauthorized");
         } else if (game == null || (playerColor != BLACK && playerColor != WHITE)) { //I think that's what I'm supposed to do here
-            throw new BadRequestException("Error: bad request");
+            throw new LogoutService.BadRequestException("Error: bad request");
         }
 
         if (playerColor.equals(WHITE)) {
