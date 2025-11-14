@@ -24,7 +24,9 @@ public class ServerFacade {
     }
 
     public void clear() throws FacadeException {
-
+        var request = buildRequest("DELETE", "/db", null, null);
+        var response = sendRequest(request);
+        handleResponse(response, Void.class);
     }
 
     public AuthData register(UserData user) throws FacadeException {

@@ -54,6 +54,7 @@ public class PreLoginUI {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
+                case "clear" -> clear();
                 case "quit" -> "Goodbye!";
                 default -> help();
             };
@@ -76,6 +77,12 @@ public class PreLoginUI {
                 • help
                 """;
     }
+
+    public String clear() {
+        server.clear();
+        return "all data cleared";
+    }
+
 
     public String register(String... params) throws FacadeException {
         if (params.length >= 3) {

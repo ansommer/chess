@@ -53,6 +53,7 @@ public class PostLoginUI {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "create" -> create(params);
+                //case "clear" -> clear();
                 case "list" -> list();
                 case "quit" -> "Goodbye!";
                 case "logout" -> logout();
@@ -96,10 +97,12 @@ public class PostLoginUI {
 
     public String list() throws FacadeException {
         GameListResponse gameResult = server.listGames(auth);
+        int i = 1;
         for (GameData game : gameResult.games()) {
             String whitePlayer = (game.whiteUsername() != null) ? game.whiteUsername() : " ";
             String blackPlayer = (game.blackUsername() != null) ? game.blackUsername() : " ";
-            System.out.printf("Game ID: %d, Name: %s, White player: %s, Black player: %s%n", game.gameID(), game.gameName(), whitePlayer, blackPlayer);
+            System.out.printf("Game ID: %d, Name: %s, White player: %s, Black player: %s%n", i, game.gameName(), whitePlayer, blackPlayer);
+            i++;
         }
         return "";
     }
@@ -123,7 +126,15 @@ public class PostLoginUI {
             try {
                 server.joinGame(auth.authToken(), id, player);
             } catch (FacadeException e) {
-                throw new FacadeException("Not a valid game ID");
+                //System.out.println(e.getMessage());
+                if (e.getMessage().equals("Error: bad request")) {
+                    throw new FacadeException("Not a valid game ID");
+                } else if (e.getMessage().equals("Error: already taken")) {
+                    throw new FacadeException("Already Taken");
+                } else {
+                    throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
+                }
+
             }
 
             state = State.IN_GAME;
