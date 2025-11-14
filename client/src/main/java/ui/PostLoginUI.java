@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame.TeamColor;
+import commonMisconceptions.BadRequestException;
 import datamodel.*;
 
 import java.util.Arrays;
@@ -11,6 +12,7 @@ public class PostLoginUI {
     private final ServerFacade server;
     private State state;
     private AuthData auth;
+    private TeamColor player = null;
 
     public PostLoginUI(ServerFacade server, State state, AuthData auth) throws Exception {
         this.server = server;
@@ -39,8 +41,8 @@ public class PostLoginUI {
         System.out.println();
         if (state == State.LOGGED_OUT) {
             new PreLoginUI("http://localhost:8080").run();
-        } else if (state == State.PLAYING_GAME) {
-            new GameUI(server, state, auth).run();
+        } else if (state == State.IN_GAME) {
+            new GameUI(server, state, auth, player).run();
         }
     }
 
@@ -55,6 +57,7 @@ public class PostLoginUI {
                 case "quit" -> "Goodbye!";
                 case "logout" -> logout();
                 case "join" -> join(params);
+                case "observe" -> observe(params);
                 default -> help();
             };
         } catch (Exception e) {
@@ -76,6 +79,21 @@ public class PostLoginUI {
                 """;
     }
 
+    public String observe(String... params) throws FacadeException {
+        //currently can observe a game that doesn't exist :/
+        if (params.length >= 1) {
+            int id = 0;
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Expected <ID>");
+            }
+            state = State.IN_GAME;
+            return String.format("Observing game %s", id);
+        }
+        throw new FacadeException("Error: Expected <ID>");
+    }
+
     public String list() throws FacadeException {
         GameListResponse gameResult = server.listGames(auth);
         for (GameData game : gameResult.games()) {
@@ -89,7 +107,6 @@ public class PostLoginUI {
     public String join(String... params) throws FacadeException {
         if (params.length >= 2) {
             int id = 0;
-            TeamColor player = null;
             try {
                 id = Integer.parseInt(params[0]);
             } catch (NumberFormatException e) {
@@ -103,8 +120,13 @@ public class PostLoginUI {
             } else {
                 throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
             }
-            server.joinGame(auth.authToken(), id, player);
-            state = State.PLAYING_GAME;
+            try {
+                server.joinGame(auth.authToken(), id, player);
+            } catch (FacadeException e) {
+                throw new FacadeException("Not a valid game ID");
+            }
+
+            state = State.IN_GAME;
             return String.format("You joined game %s as %s", id, player);
 
         }

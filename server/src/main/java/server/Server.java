@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccess;

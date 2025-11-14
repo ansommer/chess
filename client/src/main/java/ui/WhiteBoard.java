@@ -2,25 +2,28 @@ package ui;
 
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
 
-public class Board {
-    public static void main(String[] args) {
+public class WhiteBoard {
+    public static void print(String boardColor, String oponentColor) {
+        //I'm too committed now but this isn't very sustainable
+        //I think in the future, I will have every piece have a position, and if we get to that position print the piece, if not print a blank
 
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
         System.out.print("    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY + " 8 ");
-        printPieces(SET_TEXT_COLOR_BLACK);
+        printPieces(oponentColor, 1);
         nextline(8);
-        printPawns(SET_TEXT_COLOR_BLACK);
+        printPawns(oponentColor, 1);
+
         nextline(7);
         printBlanks();
-        printPieces(SET_TEXT_COLOR_WHITE);
-        nextline(2);
-        printPawns(SET_TEXT_COLOR_WHITE);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + 1 + " " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
-        System.out.print("    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR);
 
-    }
+        printPawns(boardColor, 2);
+        nextline(2);
+        printPieces(boardColor, 2);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + 1 + " " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
+        System.out.print(SET_TEXT_COLOR_WHITE + "    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR);
+
+    }//what if i join a game not there
 
     private static void printBlanks() {
         int lineNumber = 6;
@@ -41,23 +44,36 @@ public class Board {
         }
     }
 
-    private static void printPieces(String color) {
+    private static void printPieces(String color, int player) {
         System.out.print(color);
         String[] pieces = {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
                 BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
         for (int i = 0; i < pieces.length; i++) {
-            String bgColor = (i % 2 == 0) ? SET_BG_COLOR_LIGHT_PINK : SET_BG_COLOR_DARK_PINK;
-            System.out.print(bgColor);
-            System.out.print(pieces[i]);
+            if (player == 1) {
+                String bgColor = (i % 2 == 0) ? SET_BG_COLOR_LIGHT_PINK : SET_BG_COLOR_DARK_PINK;
+                System.out.print(bgColor);
+                System.out.print(pieces[i]);
+            } else {
+                String bgColor = (i % 2 == 0) ? SET_BG_COLOR_DARK_PINK : SET_BG_COLOR_LIGHT_PINK;
+                System.out.print(bgColor);
+                System.out.print(pieces[i]);
+            }
+
         }
     }
 
-    private static void printPawns(String color) {
+    private static void printPawns(String color, int player) {
         System.out.print(color);
         for (int i = 0; i < 8; i++) {
-            String bgColor = (i % 2 == 0) ? SET_BG_COLOR_DARK_PINK : SET_BG_COLOR_LIGHT_PINK;
-            System.out.print(bgColor);
-            System.out.print(BLACK_PAWN);
+            if (player == 1) {
+                String bgColor = (i % 2 == 0) ? SET_BG_COLOR_DARK_PINK : SET_BG_COLOR_LIGHT_PINK;
+                System.out.print(bgColor);
+                System.out.print(BLACK_PAWN);
+            } else {
+                String bgColor = (i % 2 == 0) ? SET_BG_COLOR_LIGHT_PINK : SET_BG_COLOR_DARK_PINK;
+                System.out.print(bgColor);
+                System.out.print(BLACK_PAWN);
+            }
         }
     }
 

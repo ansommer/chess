@@ -1,5 +1,6 @@
 package service;
 
+import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySQLDataAccessException;

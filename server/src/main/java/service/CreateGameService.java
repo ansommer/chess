@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import commonMisconceptions.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.MySQLDataAccessException;
 import datamodel.GameData;
