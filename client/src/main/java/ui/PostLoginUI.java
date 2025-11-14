@@ -39,8 +39,9 @@ public class PostLoginUI {
         System.out.println();
         if (state == State.LOGGED_OUT) {
             new PreLoginUI("http://localhost:8080").run();
+        } else if (state == State.PLAYING_GAME) {
+            new GameUI(server, state, auth).run();
         }
-        return;
     }
 
     public String eval(String input) {
