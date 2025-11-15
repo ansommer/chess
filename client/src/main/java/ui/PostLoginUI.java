@@ -21,7 +21,7 @@ public class PostLoginUI {
     }
 
     public void run() throws Exception {
-        server.listGames(auth);
+        gameList = server.listGames(auth);
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -83,6 +83,7 @@ public class PostLoginUI {
 
     public String observe(String... params) throws FacadeException {
         //currently can observe a game that doesn't exist :/
+        //server.listGames(auth);
         if (params.length >= 1) {
             int id = 0;
             try {
@@ -90,7 +91,7 @@ public class PostLoginUI {
             } catch (NumberFormatException e) {
                 System.out.println("Error: Expected <ID>");
             }
-            if (id <= gameList.games().size()) {
+            if (id > 0 && id <= gameList.games().size()) {
                 state = State.IN_GAME;
                 return String.format("Observing game %s", id);
             } else {
@@ -109,10 +110,14 @@ public class PostLoginUI {
             System.out.printf("Game ID: %d, Name: %s, White player: %s, Black player: %s%n", i, game.gameName(), whitePlayer, blackPlayer);
             i++;
         }
+        if (gameList.games().isEmpty()) {
+            System.out.print("No Games Yet!");
+        }
         return "";
     }
 
     public String join(String... params) throws FacadeException {
+        //server.listGames(auth);
         if (params.length >= 2) {
             int id = 0;
             try {
@@ -128,25 +133,28 @@ public class PostLoginUI {
             } else {
                 throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
             }
+            if (id > 0 && id <= gameList.games().size()) {
+                GameData game = gameList.games().get(id - 1);
 
-            GameData game = gameList.games().get(id - 1);
+                try {
+                    server.joinGame(auth.authToken(), game.gameID(), player);
+                } catch (FacadeException e) {
+                    if (e.getMessage().equals("Error: bad request")) {
+                        throw new FacadeException("Not a valid game ID");
+                    } else if (e.getMessage().equals("Error: already taken")) {
+                        throw new FacadeException("Already Taken");
+                    } else {
+                        throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
+                    }
 
-            try {
-                server.joinGame(auth.authToken(), game.gameID(), player);
-            } catch (FacadeException e) {
-                //System.out.println(e.getMessage());
-                if (e.getMessage().equals("Error: bad request")) {
-                    throw new FacadeException("Not a valid game ID");
-                } else if (e.getMessage().equals("Error: already taken")) {
-                    throw new FacadeException("Already Taken");
-                } else {
-                    throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
                 }
 
-            }
 
-            state = State.IN_GAME;
-            return String.format("You joined game %s as %s", id, player);
+                state = State.IN_GAME;
+                return String.format("You joined game %s as %s", id, player);
+            } else {
+                throw new FacadeException("Not a valid game ID");
+            }
 
         }
         throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");

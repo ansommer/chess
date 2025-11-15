@@ -10,7 +10,7 @@ public class BlackBoard implements Board {
         int direction = 1;
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
         System.out.print("    H   G   F  E   D  C   B   A    " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY + " 1 ");
-        printPieces(oponentColor, 1);
+        printPieces(oponentColor, 1, "black");
         nextline(1, direction);
         printPawns(oponentColor, 1);
 
@@ -19,7 +19,7 @@ public class BlackBoard implements Board {
 
         printPawns(boardColor, 2);
         nextline(7, direction);
-        printPieces(boardColor, 2);
+        printPieces(boardColor, 2, "black");
         System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE + " " + 8 + " " +
                 RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
         System.out.print(SET_TEXT_COLOR_WHITE + "    H   G   F  E   D  C   B   A    " + RESET_BG_COLOR);

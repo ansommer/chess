@@ -4,10 +4,17 @@ import static ui.EscapeSequences.*;;
 
 public interface Board {
 
-    default void printPieces(String color, int player) {
+    default void printPieces(String color, int player, String boardColor) {
         System.out.print(color);
-        String[] pieces = {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
-                BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
+        String[] pieces = {};
+        if (boardColor.equals("black")) {
+            pieces = new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING,
+                    BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
+        } else {
+            pieces = new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
+                    BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
+        }
+
         for (int i = 0; i < pieces.length; i++) {
             if (player == 1) {
                 String bgColor = (i % 2 == 0) ? SET_BG_COLOR_LIGHT_PINK : SET_BG_COLOR_DARK_PINK;

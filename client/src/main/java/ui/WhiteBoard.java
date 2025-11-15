@@ -10,7 +10,7 @@ public class WhiteBoard implements Board {
         int direction = -1;
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
         System.out.print("    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY + " 8 ");
-        printPieces(oponentColor, 1);
+        printPieces(oponentColor, 1, "white");
         nextline(8, direction);
         printPawns(oponentColor, 1);
 
@@ -19,7 +19,7 @@ public class WhiteBoard implements Board {
 
         printPawns(boardColor, 2);
         nextline(2, direction);
-        printPieces(boardColor, 2);
+        printPieces(boardColor, 2, "white");
         System.out.print(SET_BG_COLOR_LIGHT_GREY + " " + 1 + " " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
         System.out.print(SET_TEXT_COLOR_WHITE + "    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR);
 
