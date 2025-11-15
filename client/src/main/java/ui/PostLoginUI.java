@@ -21,6 +21,7 @@ public class PostLoginUI {
     }
 
     public void run() throws Exception {
+        server.listGames(auth);
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -89,8 +90,12 @@ public class PostLoginUI {
             } catch (NumberFormatException e) {
                 System.out.println("Error: Expected <ID>");
             }
-            state = State.IN_GAME;
-            return String.format("Observing game %s", id);
+            if (id <= gameList.games().size()) {
+                state = State.IN_GAME;
+                return String.format("Observing game %s", id);
+            } else {
+                throw new FacadeException("Not a valid game ID");
+            }
         }
         throw new FacadeException("Error: Expected <ID>");
     }
