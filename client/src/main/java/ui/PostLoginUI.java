@@ -40,7 +40,7 @@ public class PostLoginUI {
         }
         System.out.println();
         if (state == State.LOGGED_OUT) {
-            new PreLoginUI("http://localhost:8080").run();
+            new PreLoginUI().run();
         } else if (state == State.IN_GAME) {
             new GameUI(server, state, auth, player).run();
         }

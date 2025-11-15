@@ -105,7 +105,7 @@ public class MySQLDataAccess implements DataAccess {
             String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
             updateTable(statement, user.username(), hashedPassword, user.email());
         } catch (Exception e) {
-            throw new MySQLDataAccessException("Error: Error: Unable to save user", e);
+            throw new MySQLDataAccessException("Error: Unable to save user", e);
         }
     }
 

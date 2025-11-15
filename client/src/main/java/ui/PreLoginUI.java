@@ -13,8 +13,8 @@ public class PreLoginUI {
     private final ServerFacade server;
     private State state = State.LOGGED_OUT;
 
-    public PreLoginUI(String serverUrl) throws Exception {
-        server = new ServerFacade(serverUrl);
+    public PreLoginUI() throws Exception {
+        server = new ServerFacade(8080);
     }
 
     public void run() {

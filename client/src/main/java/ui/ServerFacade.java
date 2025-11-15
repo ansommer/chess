@@ -17,10 +17,12 @@ import java.util.HashMap;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String serverUrl;
+    private final String serverUrl = "http://localhost:";
+    private final int port;
 
-    public ServerFacade(String serverUrl) {
-        this.serverUrl = serverUrl;
+
+    public ServerFacade(int port) {
+        this.port = port;
     }
 
     public void clear() throws FacadeException {
@@ -79,7 +81,7 @@ public class ServerFacade {
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + path))
+                .uri(URI.create(serverUrl + port + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");

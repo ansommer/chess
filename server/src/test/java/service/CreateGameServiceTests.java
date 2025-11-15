@@ -44,7 +44,8 @@ public class CreateGameServiceTests {
         AuthData registerResult = registerService.register(user);
         String authToken = registerResult.authToken();
 
-        LogoutService.BadRequestException e = assertThrows(LogoutService.BadRequestException.class, () -> createGameService.createGame(authToken, null));
+        LogoutService.BadRequestException e = assertThrows(LogoutService.BadRequestException.class, () ->
+                createGameService.createGame(authToken, null));
         assertEquals("Error: bad request", e.getMessage());
 
     }
