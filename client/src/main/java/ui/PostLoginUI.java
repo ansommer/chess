@@ -12,6 +12,7 @@ public class PostLoginUI {
     private State state;
     private AuthData auth;
     private TeamColor player = null;
+    private GameListResponse gameList;
 
     public PostLoginUI(ServerFacade server, State state, AuthData auth) throws Exception {
         this.server = server;
@@ -95,9 +96,9 @@ public class PostLoginUI {
     }
 
     public String list() throws FacadeException {
-        GameListResponse gameResult = server.listGames(auth);
+        gameList = server.listGames(auth);
         int i = 1;
-        for (GameData game : gameResult.games()) {
+        for (GameData game : gameList.games()) {
             String whitePlayer = (game.whiteUsername() != null) ? game.whiteUsername() : " ";
             String blackPlayer = (game.blackUsername() != null) ? game.blackUsername() : " ";
             System.out.printf("Game ID: %d, Name: %s, White player: %s, Black player: %s%n", i, game.gameName(), whitePlayer, blackPlayer);
@@ -122,8 +123,11 @@ public class PostLoginUI {
             } else {
                 throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
             }
+
+            GameData game = gameList.games().get(id - 1);
+
             try {
-                server.joinGame(auth.authToken(), id, player);
+                server.joinGame(auth.authToken(), game.gameID(), player);
             } catch (FacadeException e) {
                 //System.out.println(e.getMessage());
                 if (e.getMessage().equals("Error: bad request")) {

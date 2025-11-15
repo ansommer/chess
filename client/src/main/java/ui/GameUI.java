@@ -16,6 +16,8 @@ public class GameUI {
     private State state;
     private AuthData auth;
     private TeamColor player;
+    private WhiteBoard whiteBoard = new WhiteBoard();
+    private BlackBoard blackBoard = new BlackBoard();
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player) throws Exception {
         this.server = server;
@@ -33,9 +35,9 @@ public class GameUI {
                 return;
             }
             if (player == WHITE || player == null) {
-                WhiteBoard.print(SET_TEXT_COLOR_WHITE, SET_TEXT_COLOR_BLACK);
+                whiteBoard.print(SET_TEXT_COLOR_WHITE, SET_TEXT_COLOR_BLACK);
             } else if (player == BLACK) {
-                BlackBoard.print(SET_TEXT_COLOR_BLACK, SET_TEXT_COLOR_WHITE);
+                blackBoard.print(SET_TEXT_COLOR_BLACK, SET_TEXT_COLOR_WHITE);
             }
             printPrompt(state);
             String line = scanner.nextLine();
