@@ -171,6 +171,7 @@ public class PostLoginUI {
             String gameName = params[0];
             String authToken = auth.authToken();
             server.createGame(gameName, authToken);
+            gameList = server.listGames(auth);
             return String.format("Game %s created!", gameName);
         }
         throw new FacadeException("Error: Expected <GAME NAME>");
