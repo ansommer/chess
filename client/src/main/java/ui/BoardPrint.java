@@ -13,6 +13,12 @@ public class BoardPrint {
     public void print(ChessGame.TeamColor teamColor) {
         chessBoard.resetBoard();
 
+        System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
+        if (teamColor == WHITE) {
+            System.out.print("    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY + " 8 ");
+        } else {
+            System.out.print("    H   G   F  E   D  C   B   A    " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY + " 1 ");
+        }
 
         int row = (teamColor == WHITE) ? 8 : 1;
         int column = (teamColor == WHITE) ? 8 : 1;
@@ -42,6 +48,16 @@ public class BoardPrint {
 
         }
 
+        System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
+        if (teamColor == WHITE) {
+
+            System.out.print(" " + 1 + " " + RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
+            System.out.print("    A   B   C  D   E  F   G   H    " + RESET_BG_COLOR);
+        } else {
+            System.out.print(SET_TEXT_COLOR_WHITE + " " + 8 + " " +
+                    RESET_BG_COLOR + "\n" + SET_BG_COLOR_LIGHT_GREY);
+            System.out.print("    H   G   F  E   D  C   B   A    " + RESET_BG_COLOR);
+        }
 
     }
 

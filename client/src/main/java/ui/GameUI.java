@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import chess.ChessGame.TeamColor;
 import datamodel.AuthData;
 
@@ -16,8 +17,9 @@ public class GameUI {
     private State state;
     private AuthData auth;
     private TeamColor player;
-    private WhiteBoard whiteBoard = new WhiteBoard();
-    private BlackBoard blackBoard = new BlackBoard();
+    private BoardPrint boardPrint = new BoardPrint();
+    //private WhiteBoard whiteBoard = new WhiteBoard();
+    //private BlackBoard blackBoard = new BlackBoard();
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player) throws Exception {
         this.server = server;
@@ -35,9 +37,9 @@ public class GameUI {
                 return;
             }
             if (player == WHITE || player == null) {
-                whiteBoard.print(SET_TEXT_COLOR_WHITE, SET_TEXT_COLOR_BLACK);
+                boardPrint.print(WHITE);
             } else if (player == BLACK) {
-                blackBoard.print(SET_TEXT_COLOR_BLACK, SET_TEXT_COLOR_WHITE);
+                boardPrint.print(BLACK);
             }
             printPrompt(state);
             String line = scanner.nextLine();
