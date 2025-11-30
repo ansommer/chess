@@ -9,6 +9,7 @@ package chess;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
+
     public ChessBoard() {
 
     }
@@ -16,16 +17,26 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
-        if (o == null || getClass() != o.getClass()) {return false;}
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessBoard chessBoard = (ChessBoard) o;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece a = board[i][j];
                 ChessPiece b = chessBoard.board[i][j];
-                if (a == null && b == null) {continue;}
-                if (a == null || b == null) {return false;}
-                if (!a.equals(b)) {return false;}
+                if (a == null && b == null) {
+                    continue;
+                }
+                if (a == null || b == null) {
+                    return false;
+                }
+                if (!a.equals(b)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -43,7 +54,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow()-1][position.getColumn()-1] = piece;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -54,7 +65,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return board[position.getRow()-1][position.getColumn()-1];
+        return board[position.getRow() - 1][position.getColumn() - 1];
 
     }
 
