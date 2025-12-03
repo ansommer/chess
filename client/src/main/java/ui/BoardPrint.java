@@ -2,6 +2,7 @@ package ui;
 
 import chess.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static chess.ChessGame.TeamColor.*;
@@ -10,14 +11,17 @@ import static ui.EscapeSequences.*;
 public class BoardPrint {
     String darkPinkSquare = SET_BG_COLOR_DARK_PINK + SET_TEXT_COLOR_DARK_PINK;
     String lightPinkSquare = SET_BG_COLOR_LIGHT_PINK + SET_TEXT_COLOR_LIGHT_PINK;
+    String darkPurpleSquare = SET_BG_COLOR_PURPLE3 + SET_TEXT_COLOR_PURPLE3;
+    String lightPurpleSquare = SET_BG_COLOR_PURPLE4 + SET_TEXT_COLOR_PURPLE4;
 
 
     public void print(ChessGame.TeamColor teamColor, ChessPosition position,
                       ChessBoard chessBoard, ChessGame chessGame) {
-
+        Collection<ChessMove> moves = new ArrayList<>();
+        //System.out.print(SET_BG_COLOR_SELECTED_PIECE + "xxxx" + SET_BG_COLOR_PURPLE1 + "xxxx" + SET_BG_COLOR_PURPLE2 + "xxxx" + SET_BG_COLOR_PURPLE3 + "xxxx");
         if (position != null) {
             ChessPiece selectedPiece = chessBoard.getPiece(position);
-            Collection<ChessMove> moves = selectedPiece.pieceMoves(chessBoard, position);
+            moves = selectedPiece.pieceMoves(chessBoard, position);
         }
 
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
@@ -31,15 +35,25 @@ public class BoardPrint {
         int column = (teamColor == WHITE) ? 8 : 1;
         while ((teamColor == WHITE && row > 0) || (teamColor == BLACK && row < 9)) {
             while ((teamColor == WHITE && column > 0) || (teamColor == BLACK && column < 9)) {
-                var piece = chessBoard.getPiece(new ChessPosition(row, column));
+                var currentPosition = new ChessPosition(row, column);
+                var piece = chessBoard.getPiece(currentPosition);
                 String bgColor;
                 if (row % 2 == 0) {
-                    bgColor = (column % 2 == 0) ? darkPinkSquare : lightPinkSquare;
+                    if (hasMove(currentPosition, moves)) {
+                        bgColor = (column % 2 == 0) ? darkPurpleSquare : lightPurpleSquare;
+                    } else {
+                        bgColor = (column % 2 == 0) ? darkPinkSquare : lightPinkSquare;
+                    }
+                } else if (hasMove(currentPosition, moves)) {
+                    bgColor = (column % 2 == 0) ? lightPurpleSquare : darkPurpleSquare;
                 } else {
                     bgColor = (column % 2 == 0) ? lightPinkSquare : darkPinkSquare;
                 }
                 System.out.print(bgColor);
                 if (piece != null) {
+                    if (currentPosition.equals(position)) {
+                        System.out.print(SET_BG_COLOR_BLUE);
+                    }
                     ChessGame.TeamColor pieceColor = piece.getTeamColor();
                     printPiece(piece, pieceColor);
                 } else {
@@ -66,6 +80,15 @@ public class BoardPrint {
             System.out.print("    H   G   F  E   D  C   B   A    " + RESET_BG_COLOR);
         }
 
+    }
+
+    private Boolean hasMove(ChessPosition position, Collection<ChessMove> moves) {
+        for (ChessMove move : moves) {
+            if (move.getEndPosition().equals(position)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void nextline(int i, ChessGame.TeamColor teamColor) {

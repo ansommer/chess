@@ -35,6 +35,9 @@ public class EscapeSequences {
     public static final String SET_TEXT_COLOR_WHITE = SET_TEXT_COLOR + "15m";
     public static final String SET_TEXT_COLOR_LIGHT_PINK = SET_TEXT_COLOR + "211m";
     public static final String SET_TEXT_COLOR_DARK_PINK = SET_TEXT_COLOR + "197m";
+    public static final String SET_TEXT_COLOR_DARK_PURPLE = SET_TEXT_COLOR + "55m";
+    public static final String SET_TEXT_COLOR_PURPLE3 = SET_TEXT_COLOR + "54m";
+    public static final String SET_TEXT_COLOR_PURPLE4 = SET_TEXT_COLOR + "134m";
     public static final String RESET_TEXT_COLOR = UNICODE_ESCAPE + "[39m";
 
     public static final String SET_BG_COLOR_BLACK = SET_BG_COLOR + "0m";
@@ -44,11 +47,18 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_GREEN = SET_BG_COLOR + "46m";
     public static final String SET_BG_COLOR_DARK_GREEN = SET_BG_COLOR + "22m";
     public static final String SET_BG_COLOR_YELLOW = SET_BG_COLOR + "226m";
-    public static final String SET_BG_COLOR_BLUE = SET_BG_COLOR + "12m";
+    public static final String SET_BG_COLOR_BLUE = SET_BG_COLOR + "68m";
     public static final String SET_BG_COLOR_MAGENTA = SET_BG_COLOR + "5m";
     public static final String SET_BG_COLOR_WHITE = SET_BG_COLOR + "15m";
+    public static final String SET_BG_COLOR_DARK_PURPLE = SET_BG_COLOR + "55m";
     public static final String SET_BG_COLOR_LIGHT_PINK = SET_BG_COLOR + "211m";
     public static final String SET_BG_COLOR_DARK_PINK = SET_BG_COLOR + "197m";
+    public static final String SET_BG_COLOR_SELECTED_PIECE = SET_BG_COLOR + "13m";
+    public static final String SET_BG_COLOR_PURPLE1 = SET_BG_COLOR + "91m";
+    public static final String SET_BG_COLOR_PURPLE2 = SET_BG_COLOR + "92m";
+    public static final String SET_BG_COLOR_PURPLE3 = SET_BG_COLOR + "54m";
+    public static final String SET_BG_COLOR_PURPLE4 = SET_BG_COLOR + "134m";
+    //public static final String SET_BG_COLOR_PURPLE5 = SET_BG_COLOR + "13m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
     public static final String WHITE_KING = " ♔ ";
