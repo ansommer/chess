@@ -2,16 +2,23 @@ package ui;
 
 import chess.*;
 
+import java.util.Collection;
+
 import static chess.ChessGame.TeamColor.*;
 import static ui.EscapeSequences.*;
 
 public class BoardPrint {
-    private ChessBoard chessBoard = new ChessBoard();
     String darkPinkSquare = SET_BG_COLOR_DARK_PINK + SET_TEXT_COLOR_DARK_PINK;
     String lightPinkSquare = SET_BG_COLOR_LIGHT_PINK + SET_TEXT_COLOR_LIGHT_PINK;
 
-    public void print(ChessGame.TeamColor teamColor) {
-        chessBoard.resetBoard();
+
+    public void print(ChessGame.TeamColor teamColor, ChessPosition position,
+                      ChessBoard chessBoard, ChessGame chessGame) {
+
+        if (position != null) {
+            ChessPiece selectedPiece = chessBoard.getPiece(position);
+            Collection<ChessMove> moves = selectedPiece.pieceMoves(chessBoard, position);
+        }
 
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
         if (teamColor == WHITE) {

@@ -135,7 +135,6 @@ public class PostLoginUI {
             }
             if (id > 0 && id <= gameList.games().size()) {
                 GameData game = gameList.games().get(id - 1);
-
                 try {
                     server.joinGame(auth.authToken(), game.gameID(), player);
                 } catch (FacadeException e) {
