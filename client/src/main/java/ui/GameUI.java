@@ -8,6 +8,7 @@ import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 import datamodel.AuthData;
+import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -19,6 +20,7 @@ import static chess.ChessGame.TeamColor.WHITE;
 public class GameUI {
 
     private final ServerFacade server;
+    private final WebSocketFacade webSocket = new WebSocketFacade();
     private State state;
     private AuthData auth;
     private TeamColor player;
@@ -38,6 +40,7 @@ public class GameUI {
     public void run() throws Exception {
         chessBoard.resetBoard(); //I am worried about this messing things up. Maybe create from the previous UI...?
         System.out.print(help());
+        webSocket.send(auth.username() + " joined!");
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (state == State.IN_GAME) {

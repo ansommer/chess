@@ -13,7 +13,7 @@ import org.eclipse.jetty.websocket.api.Session;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     @Override
     public void handleConnect(WsConnectContext ctx) {
-        System.out.println("________ joined game");
+        System.out.println("websocket Connected");
         ctx.enableAutomaticPings();
     }
 
@@ -24,6 +24,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleClose(WsCloseContext ctx) {
-        System.out.println("________ left game");
+        System.out.println("websocket Closed");
     }
 }
