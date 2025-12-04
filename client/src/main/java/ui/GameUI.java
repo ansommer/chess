@@ -8,13 +8,16 @@ import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
 import datamodel.AuthData;
+import datamodel.GameData;
 import websocket.WebSocketFacade;
+import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 
 public class GameUI {
@@ -28,19 +31,21 @@ public class GameUI {
     private boolean draw = true;
     private final ChessBoard chessBoard = new ChessBoard();
     private ChessGame chessGame = new ChessGame();
+    private GameData gameData;
 
 
-    public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player) throws Exception {
+    public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player, GameData gameData) throws Exception {
         this.server = server;
         this.state = state;
         this.auth = auth;
         this.player = player;
+        this.gameData = gameData;
     }
 
     public void run() throws Exception {
         chessBoard.resetBoard(); //I am worried about this messing things up. Maybe create from the previous UI...?
         System.out.print(help());
-        webSocket.send(auth.username() + " joined!");
+
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (state == State.IN_GAME) {
@@ -52,6 +57,8 @@ public class GameUI {
             } else if (player == BLACK && draw) {
                 boardPrint.print(BLACK, null, chessBoard, chessGame);
             }
+            UserGameCommand userGameCommand = new UserGameCommand(CONNECT, auth.authToken(), gameData.gameID());
+            webSocket.send(userGameCommand);
             printPrompt(state);
             String line = scanner.nextLine();
             try {

@@ -36,6 +36,9 @@ public class Server {
             System.out.println(e);
             return;
         }
+
+        webSocketHandler.setDataAccess(dataAccess);
+
         registerService = new RegisterService(dataAccess);
         loginService = new LoginService(dataAccess);
         clearService = new ClearService(dataAccess);

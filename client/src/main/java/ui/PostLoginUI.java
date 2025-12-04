@@ -13,6 +13,8 @@ public class PostLoginUI {
     private AuthData auth;
     private TeamColor player = null;
     private GameListResponse gameList;
+    private GameData gameData = null;
+
 
     public PostLoginUI(ServerFacade server, State state, AuthData auth) throws Exception {
         this.server = server;
@@ -43,7 +45,7 @@ public class PostLoginUI {
         if (state == State.LOGGED_OUT) {
             new PreLoginUI().run();
         } else if (state == State.IN_GAME) {
-            new GameUI(server, state, auth, player).run();
+            new GameUI(server, state, auth, player, gameData).run();
         }
     }
 
@@ -54,7 +56,6 @@ public class PostLoginUI {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "create" -> create(params);
-                //case "clear" -> clear();
                 case "list" -> list();
                 case "quit" -> "Goodbye!";
                 case "logout" -> logout();
@@ -134,9 +135,9 @@ public class PostLoginUI {
                 throw new FacadeException("Error: Expected <ID> [WHITE|BLACK]");
             }
             if (id > 0 && id <= gameList.games().size()) {
-                GameData game = gameList.games().get(id - 1);
+                gameData = gameList.games().get(id - 1);
                 try {
-                    server.joinGame(auth.authToken(), game.gameID(), player);
+                    server.joinGame(auth.authToken(), gameData.gameID(), player);
                 } catch (FacadeException e) {
                     if (e.getMessage().equals("Error: bad request")) {
                         throw new FacadeException("Not a valid game ID");

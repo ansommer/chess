@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,15 +20,14 @@ public class WebSocketFacade extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 System.out.println(message);
-                System.out.println("hello");
             }
         });
 
     }
 
 
-    public void send(String message) throws IOException {
-        session.getBasicRemote().sendText(message + "this was websocket"); //this just sends the message back
+    public void send(UserGameCommand userGameCommand) throws IOException {
+        session.getBasicRemote().sendText(new Gson().toJson(userGameCommand)); //this just sends the message back
     }
 
     public void onOpen(Session session, EndpointConfig config) {
