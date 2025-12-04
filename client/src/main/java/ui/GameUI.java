@@ -99,7 +99,7 @@ public class GameUI {
                 ChessPosition position = getPosition(params[1].toLowerCase(), Integer.parseInt(params[2]));
                 ChessPiece pieceType = chessBoard.getPiece(position);
                 if ((pieceType.getPieceType() != chessPiece.getPieceType())) {
-                    throw new FacadeException("Error: position does not match piece position");
+                    throw new FacadeException("Error: position does not match piece position"); //this isn't working....
                 }
                 if (player == WHITE) {
                     boardPrint.print(WHITE, position, chessBoard, chessGame);

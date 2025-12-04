@@ -10,6 +10,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import service.*;
 import chess.ChessGame.TeamColor;
+import websocket.WebSocketHandler;
 
 
 public class Server {
@@ -23,9 +24,11 @@ public class Server {
     private CreateGameService createGameService;
     private ListGamesService listGamesService;
     private JoinService joinService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
+        webSocketHandler = new WebSocketHandler();
 
         try {
             dataAccess = new MySQLDataAccess();
@@ -50,6 +53,12 @@ public class Server {
         server.post("game", this::createGameHandler);
         server.get("game", this::listGamesHandler);
         server.put("game", this::joinGameHandler);
+
+        server.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
     }
 
     private void clearHandler(Context ctx) {

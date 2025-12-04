@@ -18,7 +18,6 @@ public class BoardPrint {
     public void print(ChessGame.TeamColor teamColor, ChessPosition position,
                       ChessBoard chessBoard, ChessGame chessGame) {
         Collection<ChessMove> moves = new ArrayList<>();
-        //System.out.print(SET_BG_COLOR_SELECTED_PIECE + "xxxx" + SET_BG_COLOR_PURPLE1 + "xxxx" + SET_BG_COLOR_PURPLE2 + "xxxx" + SET_BG_COLOR_PURPLE3 + "xxxx");
         if (position != null) {
             ChessPiece selectedPiece = chessBoard.getPiece(position);
             moves = selectedPiece.pieceMoves(chessBoard, position);
