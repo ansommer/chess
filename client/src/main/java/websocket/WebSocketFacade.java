@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import ui.GameUI;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static websocket.commands.UserGameCommand.CommandType.MAKE_MOVE;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketFacade extends Endpoint {
@@ -23,8 +25,6 @@ public class WebSocketFacade extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                //System.out.println("Step 10");
-
                 try {
                     gameUI.handleServerMessage(message);
                 } catch (Exception e) {
@@ -36,8 +36,11 @@ public class WebSocketFacade extends Endpoint {
     }
 
 
-    public void send(UserGameCommand userGameCommand) throws IOException {
-        //System.out.println("Step 2");
+    public void send(String commandJson) throws IOException {
+        UserGameCommand userGameCommand = new Gson().fromJson(commandJson, UserGameCommand.class);
+        if (userGameCommand.getCommandType().equals(MAKE_MOVE)) {
+            userGameCommand = new Gson().fromJson(commandJson, MakeMoveCommand.class);
+        }
         session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 

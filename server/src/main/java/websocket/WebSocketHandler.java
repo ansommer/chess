@@ -12,9 +12,11 @@ import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import static websocket.commands.UserGameCommand.CommandType.MAKE_MOVE;
 import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 
 
@@ -38,8 +40,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         System.out.println("Step 4");
-        UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
-        gameService.handleUserCommand(userGameCommand, ctx.session);
+//        UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+//        if (userGameCommand.getCommandType().equals(MAKE_MOVE)) {
+//            userGameCommand = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
+//            // I have no clue if that ctx.message is correct so if there's a problem it may be here
+//        }
+        gameService.handleUserCommand(ctx.message(), ctx.session);
     }
 
     @Override
