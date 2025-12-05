@@ -11,6 +11,7 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import service.GameService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -20,10 +21,13 @@ import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
-    DataAccess dataAccess;
+    private GameService gameService;
+
+    //DataAccess dataAccess;
 
     public void setDataAccess(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
+        this.gameService = new GameService(dataAccess, connections);
+        //this.dataAccess = dataAccess;
     }
 
     @Override
@@ -34,19 +38,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
-        String username = dataAccess.getUserFromAuthToken(userGameCommand.getAuthToken());
-        //I may not need this because I will somehow have access to the GameData
-        switch (userGameCommand.getCommandType()) {
-            case CONNECT -> connect(username, ctx.session);
-        }
+        gameService.handleUserCommand(userGameCommand, ctx.session);
     }
-
-    public void connect(String username, Session session) throws Exception {
-        connections.add(session);
-        ServerMessage serverMessage = new ServerMessage(LOAD_GAME);
-        connections.broadcast(session, serverMessage);
-    }
-
 
     @Override
     public void handleClose(@NotNull WsCloseContext ctx) {
