@@ -2,8 +2,21 @@ package websocket.messages;
 
 import datamodel.GameData;
 
-public record LoadGameMessage(GameData game) {
-    //maybe a state with who's turn, checkmate, and stalemate?
-    //Used by the server to send the current game state to a client.
-    // When a client receives this message, it will redraw the chess board.
+public class LoadGameMessage extends ServerMessage {
+
+    private final GameData game;
+
+    public LoadGameMessage(GameData game) {
+        super(ServerMessageType.LOAD_GAME);
+        this.game = game;
+    }
+
+
+    public enum LoadGameType {
+        LOAD_MY_GAME,
+        LOAD_OTHER_USER_JOIN,
+        LOAD_OTHER_USER_LEAVE,
+        LOAD_OBSERVER_JOIN,
+        LOAD_AFTER_MOVE
+    }
 }
