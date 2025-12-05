@@ -32,11 +32,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleConnect(@NotNull WsConnectContext ctx) {
-        System.out.println("websocket Connected");
+        System.out.println("Step 3");
         ctx.enableAutomaticPings();
     }
 
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
+        System.out.println("Step 4");
         UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
         gameService.handleUserCommand(userGameCommand, ctx.session);
     }

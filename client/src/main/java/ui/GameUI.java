@@ -11,19 +11,22 @@ import datamodel.AuthData;
 import datamodel.GameData;
 import websocket.WebSocketFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
+import static ui.GameState.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
+import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
 
 
 public class GameUI {
 
     private final ServerFacade server;
-    private final WebSocketFacade webSocket = new WebSocketFacade();
+    private final WebSocketFacade webSocket = new WebSocketFacade(this);
     private State state;
     private AuthData auth;
     private TeamColor player;
@@ -32,6 +35,7 @@ public class GameUI {
     private final ChessBoard chessBoard = new ChessBoard();
     private ChessGame chessGame = new ChessGame();
     private GameData gameData;
+    private GameState gameState = TURN_WHITE;
 
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player, GameData gameData) throws Exception {
@@ -52,14 +56,9 @@ public class GameUI {
             if (result.equals("Goodbye!")) {
                 return;
             }
-            if ((player == WHITE || player == null) && draw) {
-                boardPrint.print(WHITE, null, chessBoard, chessGame);
-            } else if (player == BLACK && draw) {
-                boardPrint.print(BLACK, null, chessBoard, chessGame);
-            }
             UserGameCommand userGameCommand = new UserGameCommand(CONNECT, auth.authToken(), gameData.gameID());
             webSocket.send(userGameCommand);
-            printPrompt(state);
+
             String line = scanner.nextLine();
             try {
                 result = eval(line);
@@ -90,10 +89,34 @@ public class GameUI {
                 case "quit" -> "Goodbye!";
                 case "redraw" -> redraw();
                 case "show" -> show(params);
+                case "resign" -> resign();
+                case "move" -> makeMove();
                 default -> help();
             };
         } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+
+    private String makeMove() {
+        //so I think this part just sends a thing to the websocket, and the handlemessage does stuff
+        return "";
+    }
+
+    private String resign() {
+        return "";
+    }
+
+    public void handleServerMessage(ServerMessage serverMessage) throws Exception {
+        ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
+        if (messageType == LOAD_GAME) {
+            if ((player == WHITE || player == null) && draw) {
+                boardPrint.print(WHITE, null, chessBoard, chessGame);
+            } else if (player == BLACK && draw) {
+                boardPrint.print(BLACK, null, chessBoard, chessGame);
+            }
+            System.out.println("Your message has arrived");
+            printPrompt(state);
         }
     }
 

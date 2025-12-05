@@ -11,6 +11,7 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
 
     public void add(Session session) {
+        System.out.println("Step 8");
         connections.put(session, session);
     }
 
@@ -19,12 +20,13 @@ public class ConnectionManager {
     }
 
     public void broadcast(Session excludeSession, ServerMessage serverMessage) throws IOException {
+        System.out.println("Step 9");
         String msg = new Gson().toJson(serverMessage);
         for (Session c : connections.values()) {
             if (c.isOpen()) {
-                if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
-                }
+                //if (!c.equals(excludeSession)) {
+                c.getRemote().sendString(msg);
+                //}
             }
         }
     }

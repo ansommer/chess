@@ -20,6 +20,8 @@ public class GameService {
     }
 
     public void handleUserCommand(UserGameCommand userGameCommand, Session session) throws Exception {
+        System.out.println("Step 6");
+
         UserGameCommand.CommandType type = userGameCommand.getCommandType();
         String auth = userGameCommand.getAuthToken();
         String username = dataAccess.getUserFromAuthToken(auth);
@@ -32,6 +34,7 @@ public class GameService {
     }
 
     private void handleConnect(String username, Session session) throws Exception {
+        System.out.println("Step 7");
         connections.add(session);
         ServerMessage serverMessage = new ServerMessage(LOAD_GAME);
         connections.broadcast(session, serverMessage);
