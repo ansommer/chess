@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import datamodel.GameData;
@@ -9,7 +10,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
-import static websocket.messages.LoadGameMessage.LoadGameType.*;
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 
 public class GameService {
@@ -17,6 +18,9 @@ public class GameService {
     private final DataAccess dataAccess;
     private final ConnectionManager connections;
     private ServerMessage serverMessage;
+    private GameData gameData;
+    private int gameID;
+    private String username;
 
     public GameService(DataAccess dataAccess, ConnectionManager connectionManager) {
         this.dataAccess = dataAccess;
@@ -28,24 +32,31 @@ public class GameService {
 
         UserGameCommand.CommandType type = userGameCommand.getCommandType();
         String auth = userGameCommand.getAuthToken();
-        String username = dataAccess.getUserFromAuthToken(auth);
-        int gameID = userGameCommand.getGameID();
+        username = dataAccess.getUserFromAuthToken(auth);
+        gameID = userGameCommand.getGameID();
+        gameData = dataAccess.getOneGame(gameID);
         switch (type) {
-            case CONNECT -> handleConnect(username, session, gameID);
+            case CONNECT -> handleConnect(session);
             case MAKE_MOVE -> handleMakeMove();
             case LEAVE -> handleLeave(session);
             case RESIGN -> handleResign(session);
         }
     }
 
-    private void handleConnect(String username, Session session, int gameID) throws Exception {
+    private void handleConnect(Session session) throws Exception {
         System.out.println("Step 7");
         connections.add(session);
+        String message;
         //I think this will broadcast to all the games which is why I need the map
-        GameData gameData = dataAccess.getOneGame(gameID);
-        serverMessage = new LoadGameMessage(gameData, LOAD_OTHER_USER_JOIN, username);
-        String message = new Gson().toJson(serverMessage);
-        connections.broadcast(session, message);
+
+        serverMessage = new ServerMessage(LOAD_GAME);
+        message = new Gson().toJson(serverMessage);
+        connections.broadcast(session, message, gameData, null);
+        serverMessage = new ServerMessage(NOTIFICATION);
+        message = new Gson().toJson(serverMessage);
+
+        String notification = "\n" + username + " joined the game as " + getTeamColor(username);
+        connections.broadcast(session, message, gameData, notification);
     }
 
     private void handleMakeMove() {
@@ -53,6 +64,10 @@ public class GameService {
     }
 
     private void handleLeave(Session session) throws Exception {
+        /*GameData gameData = dataAccess.getOneGame(gameID);
+        serverMessage = new LoadGameMessage(gameData, username);
+        String message = new Gson().toJson(serverMessage);
+        connections.broadcast(session, message, gameData);*/
         connections.remove(session);
     }
 
@@ -60,4 +75,13 @@ public class GameService {
         connections.remove(session);
     }
 
+
+    private String getTeamColor(String username) {
+        if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
+            return "white";
+        } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
+            return "black";
+        }
+        return "observer";
+    }
 }

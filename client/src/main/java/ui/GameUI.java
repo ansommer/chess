@@ -13,6 +13,7 @@ import datamodel.GameData;
 import websocket.WebSocketFacade;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -23,7 +24,6 @@ import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.GameState.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
-import static websocket.messages.LoadGameMessage.LoadGameType.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 
@@ -117,38 +117,6 @@ public class GameUI {
         return "";
     }
 
-    public void handleServerMessage(String message) throws Exception {
-
-        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-        ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
-
-        if (messageType == LOAD_GAME) {
-            LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-            LoadGameMessage.LoadGameType loadGameType = loadGameMessage.getLoadGameType();
-            GameData game = loadGameMessage.getGame();
-            String joinUsername = loadGameMessage.getUsername();
-            String joinColor = "observer";
-
-            if (game.blackUsername() != null && game.blackUsername().equals(joinUsername)) {
-                joinColor = "black";
-            } else if (game.whiteUsername() != null && game.whiteUsername().equals(joinUsername)) {
-                joinColor = "white";
-            }
-
-            if (loadGameType == LOAD_MY_GAME) {
-                if ((player == WHITE || player == null) && draw) {
-                    boardPrint.print(WHITE, null, chessBoard, chessGame);
-                } else if (player == BLACK && draw) {
-                    boardPrint.print(BLACK, null, chessBoard, chessGame);
-                }
-
-            } else if (loadGameType == LOAD_OTHER_USER_JOIN) {
-                System.out.print("\n" + joinUsername + " has joined game " + game.gameName() + " as " + joinColor);
-            }
-            printPrompt(gameState);
-        }
-    }
-
     public String show(String... params) throws Exception {
         draw = false;
         if (params.length >= 3) {
@@ -209,6 +177,8 @@ public class GameUI {
     public String leave() throws Exception {
         try {
             server.leaveGame(auth.authToken(), gameData.gameID(), player);
+            UserGameCommand userGameCommand = new UserGameCommand(LEAVE, auth.authToken(), gameData.gameID());
+            webSocket.send(userGameCommand);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -228,6 +198,28 @@ public class GameUI {
                 • quit
                 """;
     }
+
+    public void handleServerMessage(String message) throws Exception {
+
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+        ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
+
+        if (messageType == LOAD_GAME) {
+            LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+
+            if ((player == WHITE || player == null) && draw) {
+                boardPrint.print(WHITE, null, chessBoard, chessGame);
+            } else if (player == BLACK && draw) {
+                boardPrint.print(BLACK, null, chessBoard, chessGame);
+            }
+
+        } else if (messageType == NOTIFICATION) {
+            NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+            System.out.print(notificationMessage.getMessage());
+        }
+        printPrompt(gameState);
+    }
+
 
     private void printPrompt(GameState state) {
         System.out.print("\n" + state + " >>> ");

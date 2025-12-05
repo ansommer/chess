@@ -1,14 +1,15 @@
 package websocket;
 
 import com.google.gson.Gson;
+import datamodel.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static websocket.messages.LoadGameMessage.LoadGameType.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class ConnectionManager {
@@ -23,41 +24,33 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session excludeSession, String jsonServerMessage) throws IOException {
+    public void broadcast(Session mySession, String jsonServerMessage, GameData gameData, String notification) throws IOException {
         //I think this will broadcast to all the games which is why I need the map
 
-        System.out.println("Step 9");
-        //System.out.println(jsonServerMessage);
         ServerMessage serverMessage = new Gson().fromJson(jsonServerMessage, ServerMessage.class);
-        //System.out.println(serverMessage);
         String message;
         if (serverMessage.getServerMessageType() == LOAD_GAME) {
-            //System.out.println("correct");
-            LoadGameMessage loadGameMessage = new Gson().fromJson(jsonServerMessage, LoadGameMessage.class);
+            LoadGameMessage loadGameMessage = new LoadGameMessage(gameData);
             message = new Gson().toJson(loadGameMessage);
-            if (loadGameMessage.getLoadGameType().equals(LOAD_OTHER_USER_JOIN)) {
-                for (Session c : connections.values()) {
-                    if (c.isOpen()) {
-                        if (!c.equals(excludeSession)) {
-                            c.getRemote().sendString(message);
-                        } else {
-                            LoadGameMessage oponentLoadGameMessage = new LoadGameMessage(loadGameMessage.getGame(),
-                                    LOAD_MY_GAME, loadGameMessage.getUsername());
-                            message = new Gson().toJson(oponentLoadGameMessage);
-                            c.getRemote().sendString(message);
-                        }
+            for (Session c : connections.values()) {
+                if (c.isOpen()) {
+                    if (c.equals(mySession)) {
+                        c.getRemote().sendString(message);
                     }
                 }
             }
-        } else {
-            message = new Gson().toJson(serverMessage);
-            //sends to everyone
+        } else if (serverMessage.getServerMessageType() == NOTIFICATION) {
+            //unless there are notifications that do notify their own session...
+            NotificationMessage notificationMessage = new NotificationMessage(notification);
+            message = new Gson().toJson(notificationMessage);
             for (Session c : connections.values()) {
                 if (c.isOpen()) {
-                    c.getRemote().sendString(message);
+                    if (!c.equals(mySession)) {
+                        c.getRemote().sendString(message);
+                    }
                 }
             }
         }
-
     }
+
 }
