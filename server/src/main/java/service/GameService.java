@@ -41,7 +41,7 @@ public class GameService {
     private void handleConnect(String username, Session session, int gameID) throws Exception {
         System.out.println("Step 7");
         connections.add(session);
-
+        //I think this will broadcast to all the games which is why I need the map
         GameData gameData = dataAccess.getOneGame(gameID);
         serverMessage = new LoadGameMessage(gameData, LOAD_OTHER_USER_JOIN, username);
         String message = new Gson().toJson(serverMessage);

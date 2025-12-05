@@ -38,7 +38,7 @@ public class GameUI {
     private boolean draw = true;
     private final ChessBoard chessBoard = new ChessBoard();
     private final ChessGame chessGame = new ChessGame();
-    private final GameData gameData;
+    private GameData gameData;
     private final GameState gameState = TURN_WHITE;
 
 
@@ -68,8 +68,6 @@ public class GameUI {
             if (result.equals("Goodbye!")) {
                 return;
             }
-
-
             String line = scanner.nextLine();
             try {
                 result = eval(line);
@@ -115,6 +113,7 @@ public class GameUI {
     }
 
     private String resign() {
+        //doesn't make them leave the game, only lose
         return "";
     }
 
@@ -128,12 +127,12 @@ public class GameUI {
             LoadGameMessage.LoadGameType loadGameType = loadGameMessage.getLoadGameType();
             GameData game = loadGameMessage.getGame();
             String joinUsername = loadGameMessage.getUsername();
-            TeamColor joinColor = null;
+            String joinColor = "observer";
 
             if (game.blackUsername() != null && game.blackUsername().equals(joinUsername)) {
-                joinColor = BLACK;
+                joinColor = "black";
             } else if (game.whiteUsername() != null && game.whiteUsername().equals(joinUsername)) {
-                joinColor = WHITE;
+                joinColor = "white";
             }
 
             if (loadGameType == LOAD_MY_GAME) {
@@ -144,9 +143,9 @@ public class GameUI {
                 }
 
             } else if (loadGameType == LOAD_OTHER_USER_JOIN) {
-                System.out.print("\n" + joinUsername + " has joined game " + game.gameID() + " as " + joinColor);
+                System.out.print("\n" + joinUsername + " has joined game " + game.gameName() + " as " + joinColor);
             }
-            printPrompt(state);
+            printPrompt(gameState);
         }
     }
 
@@ -208,6 +207,14 @@ public class GameUI {
     }
 
     public String leave() throws Exception {
+        GameData tempGame = gameData;
+        if (player == WHITE) {
+            gameData = new GameData(tempGame.gameID(), null, tempGame.blackUsername(),
+                    tempGame.gameName(), tempGame.game());
+        } else if (player == BLACK) {
+            gameData = new GameData(tempGame.gameID(), tempGame.whiteUsername(), null,
+                    tempGame.gameName(), tempGame.game());
+        }
         state = State.LOGGED_IN;
         return "Leaving game";
     }
@@ -225,7 +232,7 @@ public class GameUI {
                 """;
     }
 
-    private void printPrompt(State state) {
+    private void printPrompt(GameState state) {
         System.out.print("\n" + state + " >>> ");
     }
 

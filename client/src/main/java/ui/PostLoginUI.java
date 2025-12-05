@@ -47,7 +47,8 @@ public class PostLoginUI {
             new PreLoginUI().run();
         } else if (state == State.IN_GAME) {
             GameUI gameUI = new GameUI(server, state, auth, player, gameData);
-            gameUI.resetBoard(); //this is still problematic if a game is in the middle or you rejoin
+            gameUI.resetBoard(); //this is still problematic if a game is in the middle or you rejoin?
+            //oh also if an observer joins in the middle of a game...
             gameUI.connectToServer();
             gameUI.run();
         }
@@ -87,8 +88,6 @@ public class PostLoginUI {
     }
 
     public String observe(String... params) throws FacadeException {
-        //currently can observe a game that doesn't exist :/
-        //server.listGames(auth);
         if (params.length >= 1) {
             int id = 0;
             try {
@@ -97,6 +96,7 @@ public class PostLoginUI {
                 System.out.println("Error: Expected <ID>");
             }
             if (id > 0 && id <= gameList.games().size()) {
+                gameData = gameList.games().get(id - 1);
                 state = State.IN_GAME;
                 return String.format("Observing game %s", id);
             } else {
@@ -173,6 +173,11 @@ public class PostLoginUI {
     public String create(String... params) throws FacadeException {
         if (params.length >= 1) {
             String gameName = params[0];
+            for (GameData game : gameList.games()) {
+                if (game.gameName().equals(gameName)) {
+                    throw new FacadeException("Error: Game with this name has already been taken");
+                }
+            }
             String authToken = auth.authToken();
             server.createGame(gameName, authToken);
             gameList = server.listGames(auth);

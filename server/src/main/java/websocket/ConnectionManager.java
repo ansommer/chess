@@ -24,6 +24,8 @@ public class ConnectionManager {
     }
 
     public void broadcast(Session excludeSession, String jsonServerMessage) throws IOException {
+        //I think this will broadcast to all the games which is why I need the map
+
         System.out.println("Step 9");
         //System.out.println(jsonServerMessage);
         ServerMessage serverMessage = new Gson().fromJson(jsonServerMessage, ServerMessage.class);
