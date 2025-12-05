@@ -207,13 +207,10 @@ public class GameUI {
     }
 
     public String leave() throws Exception {
-        GameData tempGame = gameData;
-        if (player == WHITE) {
-            gameData = new GameData(tempGame.gameID(), null, tempGame.blackUsername(),
-                    tempGame.gameName(), tempGame.game());
-        } else if (player == BLACK) {
-            gameData = new GameData(tempGame.gameID(), tempGame.whiteUsername(), null,
-                    tempGame.gameName(), tempGame.game());
+        try {
+            server.leaveGame(auth.authToken(), gameData.gameID(), player);
+        } catch (Exception e) {
+            return e.getMessage();
         }
         state = State.LOGGED_IN;
         return "Leaving game";

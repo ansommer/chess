@@ -25,6 +25,7 @@ public class Server {
     private ListGamesService listGamesService;
     private JoinService joinService;
     private final WebSocketHandler webSocketHandler;
+    private LeaveService leaveService;
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
@@ -46,6 +47,7 @@ public class Server {
         createGameService = new CreateGameService(dataAccess);
         listGamesService = new ListGamesService(dataAccess);
         joinService = new JoinService(dataAccess);
+        leaveService = new LeaveService(dataAccess);
 
 
         // Register your endpoints and exception handlers here.
@@ -56,6 +58,7 @@ public class Server {
         server.post("game", this::createGameHandler);
         server.get("game", this::listGamesHandler);
         server.put("game", this::joinGameHandler);
+        server.delete("game", this::leaveGameHandler);
 
         server.ws("/ws", ws -> {
             ws.onConnect(webSocketHandler);
@@ -191,6 +194,35 @@ public class Server {
             TeamColor playerColor = req.playerColor();
             String authToken = ctx.header("Authorization");
             var res = joinService.join(authToken, gameID, playerColor);
+            ctx.status(200);
+            ctx.result(res);
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (LogoutService.BadRequestException e) {
+            ctx.status(400);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (TakenException e) {
+            ctx.status(403);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result("{\"message\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    private void leaveGameHandler(Context ctx) {
+        var serializer = new Gson();
+        try {
+            String reqJson = ctx.body(); //why is the body empty??
+            var req = serializer.fromJson(reqJson, JoinRequest.class); //for some reason req is null
+            int gameID = req.gameID();
+            TeamColor playerColor = req.playerColor();
+            String authToken = ctx.header("Authorization");
+            var res = leaveService.leave(authToken, gameID, playerColor);
             ctx.status(200);
             ctx.result(res);
         } catch (UnauthorizedException e) {

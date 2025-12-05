@@ -69,6 +69,12 @@ public class ServerFacade {
         handleResponse(response, Void.class);
     }
 
+    public void leaveGame(String authToken, int gameID, ChessGame.TeamColor player) throws FacadeException {
+        var request = buildRequest("DELETE", "/game", new JoinRequest(player, gameID), authToken);
+        var response = sendRequest(request);
+        handleResponse(response, Void.class);
+    }
+
     private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
         try {
             var response = client.send(request, BodyHandlers.ofString());
@@ -82,14 +88,16 @@ public class ServerFacade {
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + port + path));
-        if (method.equals("GET") || method.equals("DELETE")) {
+
+        if (method.equals("GET")) {
+            request.method(method, BodyPublishers.noBody());
+        } else if (method.equals("DELETE") && body == null) {
             request.method(method, BodyPublishers.noBody());
         } else {
             request.method(method, makeRequestBody(body));
-            if (body != null) {
-                request.setHeader("Content-Type", "application/json");
-            }
+            request.setHeader("Content-Type", "application/json");
         }
+
         if (authToken != null) {
             request.setHeader("Authorization", authToken);
         }
