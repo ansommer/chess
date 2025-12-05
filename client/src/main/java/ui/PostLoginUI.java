@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame.TeamColor;
 import datamodel.*;
+import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -45,7 +46,10 @@ public class PostLoginUI {
         if (state == State.LOGGED_OUT) {
             new PreLoginUI().run();
         } else if (state == State.IN_GAME) {
-            new GameUI(server, state, auth, player, gameData).run();
+            GameUI gameUI = new GameUI(server, state, auth, player, gameData);
+            gameUI.resetBoard(); //this is still problematic if a game is in the middle or you rejoin
+            gameUI.connectToServer();
+            gameUI.run();
         }
     }
 

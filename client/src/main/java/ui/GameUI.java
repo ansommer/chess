@@ -13,6 +13,7 @@ import websocket.WebSocketFacade;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -46,8 +47,16 @@ public class GameUI {
         this.gameData = gameData;
     }
 
+    public void connectToServer() throws IOException {
+        UserGameCommand userGameCommand = new UserGameCommand(CONNECT, auth.authToken(), gameData.gameID());
+        webSocket.send(userGameCommand);
+    }
+
+    public void resetBoard() {
+        chessBoard.resetBoard();
+    }
+
     public void run() throws Exception {
-        chessBoard.resetBoard(); //I am worried about this messing things up. Maybe create from the previous UI...?
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -56,8 +65,7 @@ public class GameUI {
             if (result.equals("Goodbye!")) {
                 return;
             }
-            UserGameCommand userGameCommand = new UserGameCommand(CONNECT, auth.authToken(), gameData.gameID());
-            webSocket.send(userGameCommand);
+
 
             String line = scanner.nextLine();
             try {
@@ -109,13 +117,14 @@ public class GameUI {
 
     public void handleServerMessage(ServerMessage serverMessage) throws Exception {
         ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
+        System.out.println();
         if (messageType == LOAD_GAME) {
             if ((player == WHITE || player == null) && draw) {
                 boardPrint.print(WHITE, null, chessBoard, chessGame);
             } else if (player == BLACK && draw) {
                 boardPrint.print(BLACK, null, chessBoard, chessGame);
             }
-            System.out.println("Your message has arrived");
+            System.out.print("\nYour message has arrived");
             printPrompt(state);
         }
     }
