@@ -24,9 +24,9 @@ public class WebSocketFacade extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
                 //System.out.println("Step 10");
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+
                 try {
-                    gameUI.handleServerMessage(serverMessage);
+                    gameUI.handleServerMessage(message);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

@@ -7,10 +7,12 @@ import chess.ChessGame.TeamColor;
 import chess.ChessPiece;
 import chess.ChessPiece.PieceType;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
 import websocket.WebSocketFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -21,7 +23,8 @@ import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static ui.GameState.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
-import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
+import static websocket.messages.LoadGameMessage.LoadGameType.*;
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 
 public class GameUI {
@@ -29,14 +32,14 @@ public class GameUI {
     private final ServerFacade server;
     private final WebSocketFacade webSocket = new WebSocketFacade(this);
     private State state;
-    private AuthData auth;
-    private TeamColor player;
-    private BoardPrint boardPrint = new BoardPrint();
+    private final AuthData auth;
+    private final TeamColor player;
+    private final BoardPrint boardPrint = new BoardPrint();
     private boolean draw = true;
     private final ChessBoard chessBoard = new ChessBoard();
-    private ChessGame chessGame = new ChessGame();
-    private GameData gameData;
-    private GameState gameState = TURN_WHITE;
+    private final ChessGame chessGame = new ChessGame();
+    private final GameData gameData;
+    private final GameState gameState = TURN_WHITE;
 
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player, GameData gameData) throws Exception {
@@ -115,16 +118,34 @@ public class GameUI {
         return "";
     }
 
-    public void handleServerMessage(ServerMessage serverMessage) throws Exception {
+    public void handleServerMessage(String message) throws Exception {
+
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
-        System.out.println();
+
         if (messageType == LOAD_GAME) {
-            if ((player == WHITE || player == null) && draw) {
-                boardPrint.print(WHITE, null, chessBoard, chessGame);
-            } else if (player == BLACK && draw) {
-                boardPrint.print(BLACK, null, chessBoard, chessGame);
+            LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+            LoadGameMessage.LoadGameType loadGameType = loadGameMessage.getLoadGameType();
+            GameData game = loadGameMessage.getGame();
+            String joinUsername = loadGameMessage.getUsername();
+            TeamColor joinColor = null;
+
+            if (game.blackUsername() != null && game.blackUsername().equals(joinUsername)) {
+                joinColor = BLACK;
+            } else if (game.whiteUsername() != null && game.whiteUsername().equals(joinUsername)) {
+                joinColor = WHITE;
             }
-            System.out.print("\nYour message has arrived");
+
+            if (loadGameType == LOAD_MY_GAME) {
+                if ((player == WHITE || player == null) && draw) {
+                    boardPrint.print(WHITE, null, chessBoard, chessGame);
+                } else if (player == BLACK && draw) {
+                    boardPrint.print(BLACK, null, chessBoard, chessGame);
+                }
+
+            } else if (loadGameType == LOAD_OTHER_USER_JOIN) {
+                System.out.print("\n" + joinUsername + " has joined game " + game.gameID() + " as " + joinColor);
+            }
             printPrompt(state);
         }
     }

@@ -1,18 +1,22 @@
 package service;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccess;
+import datamodel.GameData;
 import websocket.ConnectionManager;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
-import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
+import static websocket.messages.LoadGameMessage.LoadGameType.*;
 
 
 public class GameService {
 
     private final DataAccess dataAccess;
     private final ConnectionManager connections;
+    private ServerMessage serverMessage;
 
     public GameService(DataAccess dataAccess, ConnectionManager connectionManager) {
         this.dataAccess = dataAccess;
@@ -25,19 +29,23 @@ public class GameService {
         UserGameCommand.CommandType type = userGameCommand.getCommandType();
         String auth = userGameCommand.getAuthToken();
         String username = dataAccess.getUserFromAuthToken(auth);
+        int gameID = userGameCommand.getGameID();
         switch (type) {
-            case CONNECT -> handleConnect(username, session);
+            case CONNECT -> handleConnect(username, session, gameID);
             case MAKE_MOVE -> handleMakeMove();
             case LEAVE -> handleLeave(session);
             case RESIGN -> handleResign(session);
         }
     }
 
-    private void handleConnect(String username, Session session) throws Exception {
+    private void handleConnect(String username, Session session, int gameID) throws Exception {
         System.out.println("Step 7");
         connections.add(session);
-        ServerMessage serverMessage = new ServerMessage(LOAD_GAME);
-        connections.broadcast(session, serverMessage);
+
+        GameData gameData = dataAccess.getOneGame(gameID);
+        serverMessage = new LoadGameMessage(gameData, LOAD_OTHER_USER_JOIN, username);
+        String message = new Gson().toJson(serverMessage);
+        connections.broadcast(session, message);
     }
 
     private void handleMakeMove() {
