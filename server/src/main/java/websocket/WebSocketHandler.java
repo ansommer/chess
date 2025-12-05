@@ -10,6 +10,7 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
+import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -26,15 +27,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleConnect(WsConnectContext ctx) {
+    public void handleConnect(@NotNull WsConnectContext ctx) {
         System.out.println("websocket Connected");
         ctx.enableAutomaticPings();
     }
 
-    public void handleMessage(WsMessageContext ctx) throws Exception {
-        System.out.print(ctx.message());
+    public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
         String username = dataAccess.getUserFromAuthToken(userGameCommand.getAuthToken());
+        //I may not need this because I will somehow have access to the GameData
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> connect(username, ctx.session);
         }
@@ -48,7 +49,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
     @Override
-    public void handleClose(WsCloseContext ctx) {
+    public void handleClose(@NotNull WsCloseContext ctx) {
         System.out.println("websocket Closed");
     }
 }

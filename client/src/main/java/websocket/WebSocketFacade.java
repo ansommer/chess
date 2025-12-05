@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
@@ -19,7 +22,13 @@ public class WebSocketFacade extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                System.out.println(message);
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                ServerMessage.ServerMessageType messageType = serverMessage.getServerMessageType();
+                //somehow i need the gameID and a gameData object?
+                if (messageType == LOAD_GAME) {
+                    System.out.println("\n Some user entered the game");
+                }
+
             }
         });
 
@@ -27,7 +36,7 @@ public class WebSocketFacade extends Endpoint {
 
 
     public void send(UserGameCommand userGameCommand) throws IOException {
-        session.getBasicRemote().sendText(new Gson().toJson(userGameCommand)); //this just sends the message back
+        session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
     public void onOpen(Session session, EndpointConfig config) {
