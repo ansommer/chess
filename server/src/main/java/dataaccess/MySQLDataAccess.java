@@ -239,6 +239,24 @@ public class MySQLDataAccess implements DataAccess {
     }
 
     @Override
+    public void updateGame(GameData game) throws MySQLDataAccessException {
+        String statement = """
+                UPDATE games
+                SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ?
+                WHERE gameID = ?
+                """;
+
+        updateTable(
+                statement,
+                game.whiteUsername(),
+                game.blackUsername(),
+                game.gameName(),
+                game.game(),
+                game.gameID()
+        );
+    }
+
+    @Override
     public void deleteAuth(String auth) throws MySQLDataAccessException {
         String statement = "DELETE FROM authTokens WHERE authToken = ?";
         updateTable(statement, auth);

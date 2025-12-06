@@ -34,4 +34,6 @@ public interface DataAccess {
     boolean userExists(String username) throws MySQLDataAccessException;
 
     void clear() throws MySQLDataAccessException;
+
+    void updateGame(GameData game) throws MySQLDataAccessException;
 }

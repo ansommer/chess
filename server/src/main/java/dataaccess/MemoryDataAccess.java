@@ -74,5 +74,8 @@ public class MemoryDataAccess implements DataAccess {
         games.clear();
     }
 
+    public void updateGame(GameData game) throws MySQLDataAccessException {
+        games.put(game.gameName(), game);
+    }
 
 }

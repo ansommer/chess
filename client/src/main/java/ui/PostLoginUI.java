@@ -4,7 +4,9 @@ import chess.ChessGame.TeamColor;
 import datamodel.*;
 import websocket.WebSocketFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class PostLoginUI {
@@ -46,11 +48,11 @@ public class PostLoginUI {
         if (state == State.LOGGED_OUT) {
             new PreLoginUI().run();
         } else if (state == State.IN_GAME) {
-            //the current problem is that when another player joins a game, the other gameUI doesn't know that
-            //their gameData should be updated. The gamelist is over here.
+
             gameList = server.listGames(auth);
             GameUI gameUI = new GameUI(server, state, auth, player, gameData);
-            gameUI.resetBoard(); //this is still problematic if a game is in the middle or you rejoin?
+
+            //gameUI.resetBoard(); //this is still problematic if a game is in the middle or you rejoin?
             //oh also if an observer joins in the middle of a game...
 
             gameUI.connectToServer();

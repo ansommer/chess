@@ -33,10 +33,10 @@ public class GameUI {
     private final TeamColor player;
     private final BoardPrint boardPrint = new BoardPrint();
     private boolean draw = true;
-    private final ChessBoard chessBoard = new ChessBoard();
-    private final ChessGame chessGame = new ChessGame();
-    private final GameData gameData;
-    private final GameState gameState = TURN_WHITE;
+    //private final ChessBoard chessBoard = new ChessBoard();
+    //private final ChessGame chessGame = new ChessGame();
+    private GameData gameData;
+    private GameState gameState = TURN_WHITE;
 
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player, GameData gameData) throws Exception {
@@ -53,9 +53,9 @@ public class GameUI {
         webSocket.send(commandJson);
     }
 
-    public void resetBoard() {
-        chessBoard.resetBoard();
-    }
+//    public void resetBoard() {
+//        chessBoard.resetBoard();
+//    }
 
     public void run() throws Exception {
         System.out.print(help());
@@ -106,36 +106,34 @@ public class GameUI {
     }
 
     private String makeMove(String... params) throws Exception {
-        draw = false;
+        //draw = false;
         if (params.length >= 2) {
-            try {
-                //First Position (Maybe I should make a function for this
-                String square = params[0];
-                ChessPosition position = getPosition(square);
+            if ((gameState == TURN_WHITE && player == WHITE) || (gameState == TURN_BLACK && player == BLACK)) {
+                try {
+                    //First Position (Maybe I should make a function for this
+                    String square = params[0];
+                    ChessPosition position = getPosition(square);
 
-                //Second Position
-                String square2 = params[1];
-                ChessPosition position2 = getPosition(square2);
-                //ChessPiece pieceType = chessBoard.getPiece(position2);
-                ChessMove chessMove = new ChessMove(position, position2, null);
-                //well what do we do if it actually is a promotion piece. I suppose we can check piecetype and
-                //position to know if it is or not
-                MakeMoveCommand makeMoveCommand = new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID());
-                String commandJson = new Gson().toJson(makeMoveCommand);
-                webSocket.send(commandJson);
+                    //Second Position
+                    String square2 = params[1];
+                    ChessPosition position2 = getPosition(square2);
+                    //ChessPiece pieceType = chessBoard.getPiece(position2);
+                    ChessMove chessMove = new ChessMove(position, position2, null);
+                    //well what do we do if it actually is a promotion piece. I suppose we can check piecetype and
+                    //position to know if it is or not
+                    MakeMoveCommand makeMoveCommand = new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID(), gameData);
+                    String commandJson = new Gson().toJson(makeMoveCommand);
+                    webSocket.send(commandJson);
 
-                if (player == WHITE) {
-                    boardPrint.print(WHITE, null, chessBoard, chessGame);
-                } else if (player == BLACK) {
-                    boardPrint.print(BLACK, null, chessBoard, chessGame);
+
+                    //this does not take into account if it's the end of the game
+                    printPrompt(gameState);
+                    return "";
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Error: Some error I'm not sure about");
                 }
-                printPrompt(gameState);
-                return "";
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: Some error I'm not sure about");
             }
-
+            throw new FacadeException("Error: not your turn");
         }
         throw new FacadeException("Error: Expected move <COLUMN><ROW> <COLUMN><ROW> (Ex: a2 a3)");
     }
@@ -154,9 +152,9 @@ public class GameUI {
                 ChessPosition position = getPosition(square);
 
                 if (player == WHITE) {
-                    boardPrint.print(WHITE, position, chessBoard, chessGame);
+                    boardPrint.print(WHITE, position, gameData.game().getBoard());
                 } else if (player == BLACK) {
-                    boardPrint.print(BLACK, position, chessBoard, chessGame);
+                    boardPrint.print(BLACK, position, gameData.game().getBoard());
                 }
                 printPrompt(gameState);
                 return "";
@@ -195,17 +193,18 @@ public class GameUI {
     }
 
     public String redraw() throws Exception {
-        draw = false;
+        //draw = false;
         printBoard();
+        printPrompt(gameState);
         return "";
     }
 
     public String leave() throws Exception {
         try {
-            server.leaveGame(auth.authToken(), gameData.gameID(), player);
             UserGameCommand userGameCommand = new UserGameCommand(LEAVE, auth.authToken(), gameData.gameID());
             String commandJson = new Gson().toJson(userGameCommand);
             webSocket.send(commandJson);
+            server.leaveGame(auth.authToken(), gameData.gameID(), player);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -219,9 +218,9 @@ public class GameUI {
                 • help
                 • redraw
                 • leave
-                • make move <column row>
+                • move <COLUMN><ROW> <COLUMN><ROW>
                 • resign
-                • show <CHESS PIECE> <COLUMN> <ROW>
+                • show <COLUMN><ROW>
                 • quit
                 """;
     }
@@ -233,6 +232,8 @@ public class GameUI {
 
         if (messageType == LOAD_GAME) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+            gameData = loadGameMessage.getGame();
+            gameState = (gameData.game().getTeamTurn() == BLACK) ? TURN_BLACK : TURN_WHITE;
             printBoard();
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
@@ -244,12 +245,14 @@ public class GameUI {
     private void printBoard() {
         String whiteUser = (gameData.whiteUsername() != null) ? gameData.whiteUsername() : " ";
         String blackUser = (gameData.blackUsername() != null) ? gameData.blackUsername() : " ";
-
-        System.out.println("White: " + whiteUser + " Black: " + blackUser);
+        //I'm not using the updated board here
+        //System.out.println("White: " + whiteUser + " Black: " + blackUser + "ONLY FOR MY OWN REFERENCE RN BC WILL " +
+        //"NOT UPDATE IF FIRST USER TO JOIN");
+        System.out.println();
         if ((player == WHITE || player == null) && draw) {
-            boardPrint.print(WHITE, null, chessBoard, chessGame);
+            boardPrint.print(WHITE, null, gameData.game().getBoard());
         } else if (player == BLACK && draw) {
-            boardPrint.print(BLACK, null, chessBoard, chessGame);
+            boardPrint.print(BLACK, null, gameData.game().getBoard());
         }
     }
 
