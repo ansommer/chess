@@ -37,6 +37,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ctx.enableAutomaticPings();
     }
 
+    @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         gameService.handleUserCommand(ctx.message(), ctx.session);
     }
