@@ -79,6 +79,8 @@ public class GameUI {
         }
         draw = true;
         System.out.println();
+        printPrompt(gameState);
+        System.out.print("  from run");
         if (state == State.LOGGED_IN) {
             new PostLoginUI(server, state, auth).run();
         }

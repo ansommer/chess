@@ -71,11 +71,13 @@ public class GameService {
         gameData = makeMoveCommand.getGameData();
         ChessGame game = gameData.game();
         dataAccess.updateGame(gameData);
+        GameData updatedGame = dataAccess.getOneGame(gameID);
         try {
             game.makeMove(chessMove); //may need to be in a try catch?
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        dataAccess.updateGame(gameData);
         serverMessage = new LoadGameMessage(gameData);
         String message = new Gson().toJson(serverMessage);
         connections.broadcast(session, message, gameData, null, true);
