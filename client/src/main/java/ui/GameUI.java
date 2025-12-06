@@ -53,9 +53,6 @@ public class GameUI {
         webSocket.send(commandJson);
     }
 
-//    public void resetBoard() {
-//        chessBoard.resetBoard();
-//    }
 
     public void run() throws Exception {
         System.out.print(help());

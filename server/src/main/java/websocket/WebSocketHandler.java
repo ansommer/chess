@@ -34,17 +34,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleConnect(@NotNull WsConnectContext ctx) {
-        System.out.println("Step 3");
         ctx.enableAutomaticPings();
     }
 
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
-        System.out.println("Step 4");
-//        UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
-//        if (userGameCommand.getCommandType().equals(MAKE_MOVE)) {
-//            userGameCommand = new Gson().fromJson(ctx.message(), MakeMoveCommand.class);
-//            // I have no clue if that ctx.message is correct so if there's a problem it may be here
-//        }
         gameService.handleUserCommand(ctx.message(), ctx.session);
     }
 

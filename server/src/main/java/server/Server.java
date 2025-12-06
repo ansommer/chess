@@ -219,22 +219,22 @@ public class Server {
         try {
             String reqJson = ctx.body(); //why is the body empty??
             var req = serializer.fromJson(reqJson, JoinRequest.class); //for some reason req is null
-            int gameID = req.gameID();
             TeamColor playerColor = req.playerColor();
+            int gameID = req.gameID();
             String authToken = ctx.header("Authorization");
             var res = leaveService.leave(authToken, gameID, playerColor);
             ctx.status(200);
             ctx.result(res);
-        } catch (UnauthorizedException e) {
-            ctx.status(401);
-            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
-            ctx.result(errorMessage);
         } catch (LogoutService.BadRequestException e) {
             ctx.status(400);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
         } catch (TakenException e) {
             ctx.status(403);
+            String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
+            ctx.result(errorMessage);
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
             String errorMessage = "{\"message\": \"" + e.getMessage() + "\"}";
             ctx.result(errorMessage);
         } catch (Exception e) {
