@@ -13,6 +13,8 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
+//import jakarta.websocket.Session;
+
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
@@ -43,28 +45,34 @@ public class GameService {
         gameID = userGameCommand.getGameID();
         gameData = dataAccess.getOneGame(gameID);
         switch (type) {
-            case CONNECT -> handleConnect(session);
+            case CONNECT -> handleConnect(session, auth);
             case MAKE_MOVE -> handleMakeMove(new Gson().fromJson(message, MakeMoveCommand.class), session);
-            case LEAVE -> handleLeave(session);
+            case LEAVE -> handleLeave(session, gameData);
             case RESIGN -> handleResign(session);
         }
     }
 
-    private void handleConnect(Session session) throws Exception {
+    private void handleConnect(Session session, String auth) throws Exception {
         System.out.println("Step 7");
-        connections.add(session);
+
         String message;
         if (gameData == null) {
-            serverMessage = new ServerMessage(ERROR);
+            serverMessage = new ErrorMessage("Error: invalid game ID");
             message = new Gson().toJson(serverMessage);
-            String notification = "Error: invalid game ID";
-            //session.getRemote().sendString(json);
-            connections.broadcast(session, message, gameData, notification, false);
+            //.broadcast(session, message, gameData, notification, false);
+            session.getRemote().sendString(message);
+            return;
+        }
+        if (!dataAccess.authExists(auth)) {
+            serverMessage = new ErrorMessage("Error: unauthorized");
+            message = new Gson().toJson(serverMessage);
+            //.broadcast(session, message, gameData, notification, false);
+            session.getRemote().sendString(message);
             return;
         }
 
         //I think this will broadcast to all the games which is why I need the map
-
+        connections.add(session);
         serverMessage = new ServerMessage(LOAD_GAME);
         message = new Gson().toJson(serverMessage);
         connections.broadcast(session, message, gameData, null, false);
@@ -78,13 +86,12 @@ public class GameService {
     private void handleMakeMove(MakeMoveCommand makeMoveCommand, Session session) throws Exception {
         ChessMove chessMove = makeMoveCommand.getMove();
 
-        gameData = makeMoveCommand.getGameData();
+        //gameData = makeMoveCommand.getGameData();
         if (gameData == null) {
-            serverMessage = new ServerMessage(ERROR);
+            //IT'S ACTUALLY HERE THAT JOIN AFTER LEAVE IS HAVING ITS PROBLEM
+            serverMessage = new ErrorMessage("Error: invalid game ID");
             String message = new Gson().toJson(serverMessage);
-            String notification = "Error: invalid game ID";
-            //session.getRemote().sendString(json);
-            connections.broadcast(session, message, gameData, notification, false);
+            session.getRemote().sendString(message);
             return;
         }
         ChessGame game = gameData.game();
@@ -138,14 +145,30 @@ public class GameService {
 
     }
 
-    private void handleLeave(Session session) throws Exception {
+    private void handleLeave(Session session, GameData gameData) throws Exception {
+        System.out.println("left");
+        String teamColor = getTeamColor(username);
+        GameData newGame = gameData;
+        if (teamColor.equals("white")) {
+            newGame = new GameData(gameData.gameID(), null, gameData.blackUsername(),
+                    gameData.gameName(), gameData.game());
+            dataAccess.updateGame(newGame);
+            GameData gameData2 = dataAccess.getOneGame(newGame.gameID());
+            System.out.println(gameData);
+            System.out.println(gameData2);
+        } else if (teamColor.equals("black")) {
+            newGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null,
+                    gameData.gameName(), gameData.game());
+            dataAccess.updateGame(newGame);
+        }
         serverMessage = new ServerMessage(NOTIFICATION);
+
         String message = new Gson().toJson(serverMessage);
         String notification = "\n" + username + " left the game";
-        if (getTeamColor(username).equals("observer")) {
+        if (teamColor.equals("observer")) {
             notification = "\n" + username + " stopped observing game";
         }
-        connections.broadcast(session, message, gameData, notification, false);
+        connections.broadcast(session, message, newGame, notification, false);
         connections.remove(session);
     }
 
