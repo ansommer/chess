@@ -9,6 +9,7 @@ import websocket.ConnectionManager;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -53,6 +54,15 @@ public class GameService {
         System.out.println("Step 7");
         connections.add(session);
         String message;
+        if (gameData == null) {
+            serverMessage = new ServerMessage(ERROR);
+            message = new Gson().toJson(serverMessage);
+            String notification = "Error: invalid game ID";
+            //session.getRemote().sendString(json);
+            connections.broadcast(session, message, gameData, notification, false);
+            return;
+        }
+
         //I think this will broadcast to all the games which is why I need the map
 
         serverMessage = new ServerMessage(LOAD_GAME);
@@ -69,6 +79,14 @@ public class GameService {
         ChessMove chessMove = makeMoveCommand.getMove();
 
         gameData = makeMoveCommand.getGameData();
+        if (gameData == null) {
+            serverMessage = new ServerMessage(ERROR);
+            String message = new Gson().toJson(serverMessage);
+            String notification = "Error: invalid game ID";
+            //session.getRemote().sendString(json);
+            connections.broadcast(session, message, gameData, notification, false);
+            return;
+        }
         ChessGame game = gameData.game();
         dataAccess.updateGame(gameData);
         GameData updatedGame = dataAccess.getOneGame(gameID);

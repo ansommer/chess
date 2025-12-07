@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 import datamodel.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -16,7 +17,6 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
 
     public void add(Session session) {
-        System.out.println("Step 8");
         connections.put(session, session);
     }
 
@@ -46,6 +46,18 @@ public class ConnectionManager {
             for (Session c : connections.values()) {
                 if (c.isOpen()) {
                     if (!c.equals(mySession) || sendToAll) {
+                        c.getRemote().sendString(message);
+                    }
+                }
+            }
+        } else if (serverMessage.getServerMessageType() == ERROR) {
+            ErrorMessage errorMessage = new ErrorMessage(notification);
+
+            message = new Gson().toJson(errorMessage);
+
+            for (Session c : connections.values()) {
+                if (c.isOpen()) {
+                    if (c.equals(mySession) || sendToAll) {
                         c.getRemote().sendString(message);
                     }
                 }

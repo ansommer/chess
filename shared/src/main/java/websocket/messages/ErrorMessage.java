@@ -12,4 +12,8 @@ public class ErrorMessage extends ServerMessage {
         super(ServerMessage.ServerMessageType.ERROR);
         this.errorMessage = errorMessage;
     }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

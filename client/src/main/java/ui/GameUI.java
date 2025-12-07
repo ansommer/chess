@@ -9,6 +9,7 @@ import datamodel.GameData;
 import websocket.WebSocketFacade;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -237,6 +238,9 @@ public class GameUI {
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(notificationMessage.getMessage());
+        } else if (messageType == ERROR) {
+            ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+            System.out.print(errorMessage.getErrorMessage());
         }
         printPrompt(gameState);
     }
