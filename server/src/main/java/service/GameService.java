@@ -81,7 +81,7 @@ public class GameService {
     }
 
     private void handleMakeMove(MakeMoveCommand makeMoveCommand, Session session, String auth) throws Exception {
-        if (gameData.game().getTeamTurn() == null) {
+        if (gameData.game().isGameOver()) {
             sendError(session, "Error: game over");
             return;
         }
@@ -175,25 +175,22 @@ public class GameService {
     }
 
     private void handleResign(Session session) throws Exception {
-        if (gameData.game().getTeamTurn() == null) {
+        if (gameData.game().isGameOver()) {
             sendError(session, "Error: game over");
             return;
         }
-        Scanner scanner = new Scanner(System.in);
-
-
-        serverMessage = new ServerMessage(NOTIFICATION);
-
-        String message = new Gson().toJson(serverMessage);
-        String notification = """
-                Are you sure you want to resign?
-                -yes
-                -no
-                """;
         if (team.equals("observer")) {
             sendError(session, "Error: observer cannot resign");
+            return;
         }
-        connections.broadcast(session, message, gameData, notification, ME);
+        gameData.game().setGameOver(true);
+        dataAccess.updateGame(gameData);
+        serverMessage = new ServerMessage(NOTIFICATION);
+        String notification = (team.equals("white")) ? "White resigned. Team black wins!" : "Black resigned. " +
+                "Team white wins!";
+        String message = new Gson().toJson(serverMessage);
+        connections.broadcast(session, message, gameData, notification, ALL);
+
     }
 
 

@@ -8,6 +8,5 @@ public enum GameState {
     CHECKMATE_WHITE,
     CHECKMATE_BLACK,
     STALEMATE,
-    WHITE_WIN,
-    BLACK_WIN,
+    GAMEOVER,
 }

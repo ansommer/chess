@@ -22,6 +22,8 @@ public class ChessGame {
     private boolean bKingOrRook2Moved;
     private boolean wKingOrRook1Moved;
     private boolean wKingOrRook2Moved;
+    private boolean gameOver = false;
+
 
     @Override
     public boolean equals(Object o) {
@@ -434,4 +436,14 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+
 }

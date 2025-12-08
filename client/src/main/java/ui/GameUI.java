@@ -99,7 +99,6 @@ public class GameUI {
                 case "show" -> show(params);
                 case "resign" -> resignRequest();
                 case "move" -> makeMove(params);
-                case "yes", "no" -> resign();
                 default -> help();
             };
         } catch (Exception e) {
@@ -108,9 +107,6 @@ public class GameUI {
     }
 
     private String makeMove(String... params) throws Exception {
-        if (gameState == WHITE_WIN || gameState == BLACK_WIN) {
-            return "Error: You cannot make a move. The game is over :)";
-        }
         //draw = false;
         if (params.length >= 2) {
             if ((gameState == TURN_WHITE && player == WHITE) || (gameState == TURN_BLACK && player == BLACK)) {
@@ -143,17 +139,18 @@ public class GameUI {
     }
 
     private String resignRequest() throws Exception {
-        resignRequest = true;
-        UserGameCommand userGameCommand = new UserGameCommand(RESIGN, auth.authToken(), gameData.gameID());
-        String commandJson = new Gson().toJson(userGameCommand);
-        webSocket.send(commandJson);
-        return "";
-    }
-
-    private String resign() {
-        if (resignRequest) {
-            gameState = (player == WHITE) ? BLACK_WIN : WHITE_WIN;
-            gameData.game().setTeamTurn(null);
+        Scanner scanner = new Scanner(System.in);
+        String check = """
+                Are you sure you want to resign?
+                -yes
+                -no
+                """;
+        System.out.print(check);
+        String answer = scanner.nextLine();
+        if (answer.equalsIgnoreCase("yes")) {
+            UserGameCommand userGameCommand = new UserGameCommand(RESIGN, auth.authToken(), gameData.gameID());
+            String commandJson = new Gson().toJson(userGameCommand);
+            webSocket.send(commandJson);
         }
         return "";
     }
@@ -253,7 +250,9 @@ public class GameUI {
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(notificationMessage.getMessage());
-            resignRequest = false;
+            if (notificationMessage.getMessage().contains("wins")) {
+                gameState = GAMEOVER;
+            }
         } else if (messageType == ERROR) {
             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
             System.out.print(errorMessage.getErrorMessage());
