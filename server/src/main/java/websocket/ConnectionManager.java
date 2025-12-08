@@ -6,6 +6,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.*;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static websocket.messages.SendTo.ALL;
@@ -13,26 +14,38 @@ import static websocket.messages.SendTo.ME;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
+    //public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Set<Session>> gameSessions = new ConcurrentHashMap<>();
 
-    public void add(Session session) {
-        connections.put(session, session);
+
+    public void add(Session session, int gameID) {
+        //connections.put(session, session);
+        gameSessions.computeIfAbsent(gameID, k -> ConcurrentHashMap.newKeySet())
+                .add(session);
     }
 
-    public void remove(Session session) {
-        connections.remove(session);
+    public void remove(Session session, int gameID) {
+        //connections.remove(session);
+        Set<Session> sessions = gameSessions.get(gameID);
+        if (sessions != null) {
+            sessions.remove(session);
+            if (sessions.isEmpty()) {
+                gameSessions.remove(gameID);
+            }
+        }
     }
 
     public void broadcast(Session mySession, String jsonServerMessage, GameData gameData, String notification,
-                          SendTo sendTo) throws IOException {
+                          SendTo sendTo, int gameID) throws IOException {
         //I think this will broadcast to all the games which is why I need the map
         //Sends only to itself unless sendToAll
+        Set<Session> sessions = gameSessions.get(gameID);
         ServerMessage serverMessage = new Gson().fromJson(jsonServerMessage, ServerMessage.class);
         String message;
         if (serverMessage.getServerMessageType() == LOAD_GAME) {
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData);
             message = new Gson().toJson(loadGameMessage);
-            for (Session c : connections.values()) {
+            for (Session c : sessions) {
                 if (c.isOpen()) {
                     if (c.equals(mySession) || (sendTo == ALL)) {
                         c.getRemote().sendString(message);
@@ -43,7 +56,7 @@ public class ConnectionManager {
             //Sends to all other clients unless sendToAll
             NotificationMessage notificationMessage = new NotificationMessage(notification);
             message = new Gson().toJson(notificationMessage);
-            for (Session c : connections.values()) {
+            for (Session c : sessions) {
                 if (c.isOpen()) {
                     if (!c.equals(mySession) || (sendTo == ALL)) {
                         c.getRemote().sendString(message);
@@ -57,7 +70,7 @@ public class ConnectionManager {
 
             message = new Gson().toJson(errorMessage);
 
-            for (Session c : connections.values()) {
+            for (Session c : sessions) {
                 if (c.isOpen()) {
                     if (c.equals(mySession) || (sendTo == ALL)) {
                         c.getRemote().sendString(message);

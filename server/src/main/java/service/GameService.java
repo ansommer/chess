@@ -69,15 +69,15 @@ public class GameService {
     private void handleConnect(Session session, String auth) throws Exception {
         String message;
         //I think this will broadcast to all the games which is why I need the map
-        connections.add(session);
+        connections.add(session, gameID);
         serverMessage = new ServerMessage(LOAD_GAME);
         message = new Gson().toJson(serverMessage);
-        connections.broadcast(session, message, gameData, null, ME);
+        connections.broadcast(session, message, gameData, null, ME, gameID);
         serverMessage = new ServerMessage(NOTIFICATION);
         message = new Gson().toJson(serverMessage);
 
         String notification = "\n" + username + " joined the game as " + team;
-        connections.broadcast(session, message, gameData, notification, OTHERS);
+        connections.broadcast(session, message, gameData, notification, OTHERS, gameID);
     }
 
     private void handleMakeMove(MakeMoveCommand makeMoveCommand, Session session, String auth) throws Exception {
@@ -111,42 +111,42 @@ public class GameService {
         dataAccess.updateGame(gameData);
         serverMessage = new LoadGameMessage(gameData);
         String message = new Gson().toJson(serverMessage);
-        connections.broadcast(session, message, gameData, null, ALL);
+        connections.broadcast(session, message, gameData, null, ALL, gameID);
 
         String notification = chessMove.getStartPosition().getColumn() + chessMove.getStartPosition().getRow() +
                 " moved to " + chessMove.getEndPosition().getColumn() + chessMove.getEndPosition().getRow();
         serverMessage = new NotificationMessage(notification);
         message = new Gson().toJson(serverMessage);
-        connections.broadcast(session, message, gameData, notification, OTHERS);
+        connections.broadcast(session, message, gameData, notification, OTHERS, gameID);
         //if it's check, checkmate, or stalemate, a message is sent to everyone
         //could I make a function here? Yes. Yes I could
         if (game.isInCheckmate(BLACK)) {
             notification = "Black is in checkmate!";
             serverMessage = new NotificationMessage(notification);
             message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL);
+            connections.broadcast(session, message, gameData, notification, ALL, gameID);
         } else if (game.isInCheck(BLACK)) {
             notification = "Black is in check!";
             serverMessage = new NotificationMessage(notification);
             message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL);
+            connections.broadcast(session, message, gameData, notification, ALL, gameID);
         }
         if (game.isInCheckmate(WHITE)) {
             notification = "White is in checkmate!";
             serverMessage = new NotificationMessage(notification);
             message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL);
+            connections.broadcast(session, message, gameData, notification, ALL, gameID);
         } else if (game.isInCheck(WHITE)) {
             notification = "White is in check!";
             serverMessage = new NotificationMessage(notification);
             message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL);
+            connections.broadcast(session, message, gameData, notification, ALL, gameID);
         }
         if (game.isInStalemate(WHITE) || game.isInStalemate(BLACK)) {
             notification = "Stalemate!";
             serverMessage = new NotificationMessage(notification);
             message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL);
+            connections.broadcast(session, message, gameData, notification, ALL, gameID);
         }
 
     }
@@ -170,8 +170,8 @@ public class GameService {
         if (team.equals("observer")) {
             notification = "\n" + username + " stopped observing game";
         }
-        connections.broadcast(session, message, newGame, notification, OTHERS);
-        connections.remove(session);
+        connections.broadcast(session, message, newGame, notification, OTHERS, gameID);
+        connections.remove(session, gameID);
     }
 
     private void handleResign(Session session) throws Exception {
@@ -189,7 +189,7 @@ public class GameService {
         String notification = (team.equals("white")) ? "White resigned. Team black wins!" : "Black resigned. " +
                 "Team white wins!";
         String message = new Gson().toJson(serverMessage);
-        connections.broadcast(session, message, gameData, notification, ALL);
+        connections.broadcast(session, message, gameData, notification, ALL, gameID);
 
     }
 
