@@ -16,11 +16,12 @@ public class BoardPrint {
 
 
     public void print(ChessGame.TeamColor teamColor, ChessPosition position,
-                      ChessBoard chessBoard) {
+                      ChessBoard chessBoard, ChessGame chessGame) {
         Collection<ChessMove> moves = new ArrayList<>();
         if (position != null) {
             ChessPiece selectedPiece = chessBoard.getPiece(position);
-            moves = selectedPiece.pieceMoves(chessBoard, position);
+            moves = chessGame.validMoves(position);
+            //moves = selectedPiece.pieceMoves(chessBoard, position);
 
         }
 

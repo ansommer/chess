@@ -190,10 +190,11 @@ public class GameUI {
                 if (pieceType == null) {
                     throw new FacadeException("Error: Not a valid piece");
                 }
-                if (player == WHITE) {
-                    boardPrint.print(WHITE, position, gameData.game().getBoard());
+                ChessGame game = gameData.game();
+                if (player == WHITE || player == null) {
+                    boardPrint.print(WHITE, position, game.getBoard(), game);
                 } else if (player == BLACK) {
-                    boardPrint.print(BLACK, position, gameData.game().getBoard());
+                    boardPrint.print(BLACK, position, game.getBoard(), game);
                 }
                 return "";
 
@@ -292,10 +293,11 @@ public class GameUI {
 
     private void printBoard() {
         System.out.println();
+        ChessGame game = gameData.game();
         if ((player == WHITE || player == null)) {
-            boardPrint.print(WHITE, null, gameData.game().getBoard());
+            boardPrint.print(WHITE, null, game.getBoard(), game);
         } else if (player == BLACK) {
-            boardPrint.print(BLACK, null, gameData.game().getBoard());
+            boardPrint.print(BLACK, null, game.getBoard(), game);
         }
 
     }
