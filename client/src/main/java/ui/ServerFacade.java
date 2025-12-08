@@ -69,11 +69,6 @@ public class ServerFacade {
         handleResponse(response, Void.class);
     }
 
-    public void leaveGame(String authToken, int gameID, ChessGame.TeamColor player) throws FacadeException {
-        var request = buildRequest("DELETE", "/game", new JoinRequest(player, gameID), authToken);
-        var response = sendRequest(request);
-        handleResponse(response, Void.class);
-    }
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws FacadeException {
         try {
