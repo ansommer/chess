@@ -31,22 +31,18 @@ public class BoardPrint {
         }
 
         int row = (teamColor == WHITE) ? 8 : 1;
-        int column = (teamColor == WHITE) ? 8 : 1;
+        int column = (teamColor == WHITE) ? 1 : 8;
         while ((teamColor == WHITE && row > 0) || (teamColor == BLACK && row < 9)) {
-            while ((teamColor == WHITE && column > 0) || (teamColor == BLACK && column < 9)) {
+            while ((teamColor == WHITE && column <= 8) || (teamColor == BLACK && column >= 1)) {
                 var currentPosition = new ChessPosition(row, column);
                 var piece = chessBoard.getPiece(currentPosition);
                 String bgColor;
-                if (row % 2 == 0) {
-                    if (hasMove(currentPosition, moves)) {
-                        bgColor = (column % 2 == 0) ? darkPurpleSquare : lightPurpleSquare;
-                    } else {
-                        bgColor = (column % 2 == 0) ? darkPinkSquare : lightPinkSquare;
-                    }
-                } else if (hasMove(currentPosition, moves)) {
-                    bgColor = (column % 2 == 0) ? lightPurpleSquare : darkPurpleSquare;
+                boolean darkSquare = ((row + column) % 2 == 0);
+
+                if (hasMove(currentPosition, moves)) {
+                    bgColor = darkSquare ? darkPurpleSquare : lightPurpleSquare;
                 } else {
-                    bgColor = (column % 2 == 0) ? lightPinkSquare : darkPinkSquare;
+                    bgColor = darkSquare ? darkPinkSquare : lightPinkSquare;
                 }
                 System.out.print(bgColor);
                 if (piece != null) {
@@ -58,12 +54,12 @@ public class BoardPrint {
                 } else {
                     System.out.print(BLACK_PAWN);
                 }
-                column += (teamColor == WHITE) ? -1 : 1;
+                column += (teamColor == WHITE) ? 1 : -1;
             }
             if ((teamColor == WHITE && row != 1) || (teamColor == BLACK && row != 8)) {
                 nextline(row, teamColor);
             }
-            column = (teamColor == WHITE) ? 8 : 1;
+            column = (teamColor == WHITE) ? 1 : 8;
             row += (teamColor == WHITE) ? -1 : 1;
 
         }

@@ -88,9 +88,6 @@ public class GameService {
         }
         ChessMove chessMove = makeMoveCommand.getMove();
 
-        //gameData = makeMoveCommand.getGameData();
-        //why was I doing this....?
-
         boolean whiteTurn = team.equals("white") && gameData.game().getTeamTurn() == WHITE;
         boolean blackTurn = team.equals("black") && gameData.game().getTeamTurn() == BLACK;
         if (!whiteTurn && !blackTurn) {
@@ -104,7 +101,7 @@ public class GameService {
         dataAccess.updateGame(gameData);
         GameData updatedGame = dataAccess.getOneGame(gameID);
         try {
-            game.makeMove(chessMove); //may need to be in a try catch?
+            game.makeMove(chessMove);
         } catch (Exception e) {
             sendError(session, "Error: invalid move");
             return;
@@ -127,12 +124,12 @@ public class GameService {
 
         //if it's check, checkmate, or stalemate, a message is sent to everyone
         //idk if this will pass being so nested
-        if (!checkGameStatus(session, (game.isInCheckmate(BLACK)), "is in checkmate!", BLACK)) {
-            if (!checkGameStatus(session, (game.isInCheck(BLACK)), "is in check!", BLACK)) {
-                if (!checkGameStatus(session, (game.isInCheckmate(WHITE)), "is in checkmate!", WHITE)) {
-                    if (!checkGameStatus(session, (game.isInCheck(WHITE)), "is in check!", WHITE)) {
+        if (!checkGameStatus(session, (game.isInCheckmate(BLACK)), "is in checkmate!", BLACK, game)) {
+            if (!checkGameStatus(session, (game.isInCheck(BLACK)), "is in check!", BLACK, game)) {
+                if (!checkGameStatus(session, (game.isInCheckmate(WHITE)), "is in checkmate!", WHITE, game)) {
+                    if (!checkGameStatus(session, (game.isInCheck(WHITE)), "is in check!", WHITE, game)) {
                         checkGameStatus(session, (game.isInStalemate(WHITE) || game.isInStalemate(BLACK)),
-                                "Stalemate!", null);
+                                "Stalemate!", null, game);
                     }
                 }
             }
@@ -141,11 +138,17 @@ public class GameService {
 
     }
 
-    private boolean checkGameStatus(Session session, boolean condition, String notification, ChessGame.TeamColor teamColor)
+    private boolean checkGameStatus(Session session, boolean condition, String notification,
+                                    ChessGame.TeamColor teamColor, ChessGame game)
             throws Exception {
         String finalNotification;
         if (teamColor != null) {
             String user = (team.equals("white") && teamColor == WHITE) ? username : gameData.blackUsername();
+            String oppositeUser = (user.equals(username)) ? gameData.blackUsername() : username;
+            String checkMate = "";
+            if (game.isInCheckmate(WHITE) || game.isInCheckmate(BLACK)) {
+                checkMate = " " + oppositeUser + " wins!";
+            }
             finalNotification = user + " " + notification;
         } else {
             finalNotification = notification;
@@ -157,12 +160,6 @@ public class GameService {
             return true;
         }
         return false;
-    }
-
-    private String positionToString(ChessPosition pos) throws Exception {
-        char col = reverseGetPosition(pos.getColumn()); // should be 1–8
-        int row = pos.getRow(); // should be 1–8
-        return "" + col + row;
     }
 
     public char reverseGetPosition(int col) throws Exception {

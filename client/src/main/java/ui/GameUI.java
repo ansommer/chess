@@ -231,7 +231,6 @@ public class GameUI {
         return new ChessPosition(row, columnNumber);
     }
 
-
     public String redraw() throws Exception {
         printBoard();
         //printPrompt(gameState);
@@ -277,8 +276,9 @@ public class GameUI {
             printPrompt(gameState);
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+            String announcement = notificationMessage.getMessage();
             System.out.print(notificationMessage.getMessage());
-            if (notificationMessage.getMessage().contains("wins")) {
+            if (announcement.contains("wins") || announcement.contains("checkmate")) {
                 gameState = GAMEOVER;
             }
             printPrompt(gameState);
