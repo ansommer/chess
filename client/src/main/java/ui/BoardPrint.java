@@ -21,6 +21,7 @@ public class BoardPrint {
         if (position != null) {
             ChessPiece selectedPiece = chessBoard.getPiece(position);
             moves = selectedPiece.pieceMoves(chessBoard, position);
+
         }
 
         System.out.print(SET_TEXT_COLOR_WHITE + SET_BG_COLOR_LIGHT_GREY);
