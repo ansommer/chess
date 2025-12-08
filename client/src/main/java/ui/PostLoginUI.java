@@ -94,6 +94,7 @@ public class PostLoginUI {
     }
 
     public String observe(String... params) throws FacadeException {
+        gameList = server.listGames(auth);
         if (params.length >= 1) {
             int id = 0;
             try {

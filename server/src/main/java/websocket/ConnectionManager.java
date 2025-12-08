@@ -3,14 +3,13 @@ package websocket;
 import com.google.gson.Gson;
 import datamodel.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static websocket.messages.SendTo.ALL;
+import static websocket.messages.SendTo.ME;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class ConnectionManager {
@@ -24,7 +23,8 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session mySession, String jsonServerMessage, GameData gameData, String notification, boolean sendToAll) throws IOException {
+    public void broadcast(Session mySession, String jsonServerMessage, GameData gameData, String notification,
+                          SendTo sendTo) throws IOException {
         //I think this will broadcast to all the games which is why I need the map
         //Sends only to itself unless sendToAll
         ServerMessage serverMessage = new Gson().fromJson(jsonServerMessage, ServerMessage.class);
@@ -34,7 +34,7 @@ public class ConnectionManager {
             message = new Gson().toJson(loadGameMessage);
             for (Session c : connections.values()) {
                 if (c.isOpen()) {
-                    if (c.equals(mySession) || sendToAll) {
+                    if (c.equals(mySession) || (sendTo == ALL)) {
                         c.getRemote().sendString(message);
                     }
                 }
@@ -45,7 +45,9 @@ public class ConnectionManager {
             message = new Gson().toJson(notificationMessage);
             for (Session c : connections.values()) {
                 if (c.isOpen()) {
-                    if (!c.equals(mySession) || sendToAll) {
+                    if (!c.equals(mySession) || (sendTo == ALL)) {
+                        c.getRemote().sendString(message);
+                    } else if ((sendTo == ME) && c.equals(mySession)) {
                         c.getRemote().sendString(message);
                     }
                 }
@@ -57,7 +59,7 @@ public class ConnectionManager {
 
             for (Session c : connections.values()) {
                 if (c.isOpen()) {
-                    if (c.equals(mySession) || sendToAll) {
+                    if (c.equals(mySession) || (sendTo == ALL)) {
                         c.getRemote().sendString(message);
                     }
                 }

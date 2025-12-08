@@ -38,6 +38,7 @@ public class GameUI {
     //private final ChessGame chessGame = new ChessGame();
     private GameData gameData;
     private GameState gameState = TURN_WHITE;
+    private Boolean resignRequest = false;
 
 
     public GameUI(ServerFacade server, State state, AuthData auth, TeamColor player, GameData gameData) throws Exception {
@@ -96,8 +97,9 @@ public class GameUI {
                 case "quit" -> "Goodbye!";
                 case "redraw" -> redraw();
                 case "show" -> show(params);
-                case "resign" -> resign();
+                case "resign" -> resignRequest();
                 case "move" -> makeMove(params);
+                case "yes", "no" -> resign();
                 default -> help();
             };
         } catch (Exception e) {
@@ -106,6 +108,9 @@ public class GameUI {
     }
 
     private String makeMove(String... params) throws Exception {
+        if (gameState == WHITE_WIN || gameState == BLACK_WIN) {
+            return "Error: You cannot make a move. The game is over :)";
+        }
         //draw = false;
         if (params.length >= 2) {
             if ((gameState == TURN_WHITE && player == WHITE) || (gameState == TURN_BLACK && player == BLACK)) {
@@ -113,7 +118,6 @@ public class GameUI {
                     //First Position (Maybe I should make a function for this
                     String square = params[0];
                     ChessPosition position = getPosition(square);
-
                     //Second Position
                     String square2 = params[1];
                     ChessPosition position2 = getPosition(square2);
@@ -121,7 +125,7 @@ public class GameUI {
                     ChessMove chessMove = new ChessMove(position, position2, null);
                     //well what do we do if it actually is a promotion piece. I suppose we can check piecetype and
                     //position to know if it is or not
-                    MakeMoveCommand makeMoveCommand = new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID(), gameData);
+                    MakeMoveCommand makeMoveCommand = new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID());
                     String commandJson = new Gson().toJson(makeMoveCommand);
                     webSocket.send(commandJson);
 
@@ -138,8 +142,19 @@ public class GameUI {
         throw new FacadeException("Error: Expected move <COLUMN><ROW> <COLUMN><ROW> (Ex: a2 a3)");
     }
 
+    private String resignRequest() throws Exception {
+        resignRequest = true;
+        UserGameCommand userGameCommand = new UserGameCommand(RESIGN, auth.authToken(), gameData.gameID());
+        String commandJson = new Gson().toJson(userGameCommand);
+        webSocket.send(commandJson);
+        return "";
+    }
+
     private String resign() {
-        //doesn't make them leave the game, only lose
+        if (resignRequest) {
+            gameState = (player == WHITE) ? BLACK_WIN : WHITE_WIN;
+            gameData.game().setTeamTurn(null);
+        }
         return "";
     }
 
@@ -204,7 +219,7 @@ public class GameUI {
             UserGameCommand userGameCommand = new UserGameCommand(LEAVE, auth.authToken(), gameData.gameID());
             String commandJson = new Gson().toJson(userGameCommand);
             webSocket.send(commandJson);
-            server.leaveGame(auth.authToken(), gameData.gameID(), player);
+            //server.leaveGame(auth.authToken(), gameData.gameID(), player);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -238,6 +253,7 @@ public class GameUI {
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(notificationMessage.getMessage());
+            resignRequest = false;
         } else if (messageType == ERROR) {
             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
             System.out.print(errorMessage.getErrorMessage());
@@ -258,7 +274,6 @@ public class GameUI {
             boardPrint.print(BLACK, null, gameData.game().getBoard());
         }
     }
-
 
     private void printPrompt(GameState state) {
         System.out.print("\n" + state + " >>> ");

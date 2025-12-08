@@ -225,7 +225,7 @@ public class MySQLDataAccess implements DataAccess {
                 """
                         INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game)
                         VALUES (?, ?, ?, ?, ?)
-                        ON DUPLICATE KEY UPDATE whiteUsername = ?, blackUsername = ?
+                        ON DUPLICATE KEY UPDATE gameID = ?, whiteUsername = ?, blackUsername = ?, gameName = ?, game = ?
                         """;
         updateTable(statement,
                 game.gameID(),
@@ -233,8 +233,11 @@ public class MySQLDataAccess implements DataAccess {
                 game.blackUsername(),
                 game.gameName(),
                 game.game(),
+                game.gameID(),
                 game.whiteUsername(),
-                game.blackUsername()
+                game.blackUsername(),
+                game.gameName(),
+                game.game()
         );
     }
 

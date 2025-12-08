@@ -6,14 +6,11 @@ import jakarta.websocket.*;
 import ui.GameUI;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static websocket.commands.UserGameCommand.CommandType.MAKE_MOVE;
-import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class WebSocketFacade extends Endpoint {
     Session session;

@@ -7,5 +7,7 @@ public enum GameState {
     CHECK_BLACK,
     CHECKMATE_WHITE,
     CHECKMATE_BLACK,
-    STALEMATE
+    STALEMATE,
+    WHITE_WIN,
+    BLACK_WIN,
 }

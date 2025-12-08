@@ -44,7 +44,7 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public void createGame(GameData game) {
-        games.put(game.gameName(), game);
+        games.put(String.valueOf(game.gameID()), game);
     }
 
     public void deleteAuth(String auth) {
