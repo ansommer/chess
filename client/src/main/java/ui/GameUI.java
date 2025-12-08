@@ -20,6 +20,7 @@ import java.util.Scanner;
 
 import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
+import static chess.ChessPiece.PieceType.*;
 import static ui.GameState.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
@@ -66,18 +67,15 @@ public class GameUI {
             try {
                 result = eval(line);
                 System.out.print(result);
-                System.out.print("1");
                 printPrompt(gameState);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
-                System.out.print("2");
                 printPrompt(gameState);
             }
 
         }
         System.out.println();
-        System.out.print("3");
         printPrompt(gameState);
         if (state == State.LOGGED_IN) {
             new PostLoginUI(server, state, auth).run();
@@ -111,15 +109,13 @@ public class GameUI {
 
                 //First Position (Maybe I should make a function for this
                 String square = params[0];
-                ChessPosition position = getPosition(square);
+                ChessPosition start = getPosition(square);
                 //Second Position
                 String square2 = params[1];
-                ChessPosition position2 = getPosition(square2);
-                //ChessPiece pieceType = chessBoard.getPiece(position2);
-                ChessMove chessMove = new ChessMove(position, position2, null);
-                //well what do we do if it actually is a promotion piece. I suppose we can check piecetype and
-                //position to know if it is or not
-                MakeMoveCommand makeMoveCommand = new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID());
+                ChessPosition end = getPosition(square2);
+                ChessBoard chessBoard = gameData.game().getBoard();
+
+                MakeMoveCommand makeMoveCommand = getMakeMoveCommand(chessBoard.getPiece(start), end, start);
                 String commandJson = new Gson().toJson(makeMoveCommand);
                 webSocket.send(commandJson);
                 return "";
@@ -129,6 +125,41 @@ public class GameUI {
         }
         throw new FacadeException("Error: Expected move <COLUMN><ROW> <COLUMN><ROW> (Ex: a2 a3)");
 
+    }
+
+    private MakeMoveCommand getMakeMoveCommand(ChessPiece piece, ChessPosition end, ChessPosition start) {
+        ChessPiece.PieceType pieceType = piece.getPieceType();
+        ChessPiece.PieceType promotionType = null;
+
+        if (pieceType.equals(PAWN) && ((end.getRow() == 8) || (end.getRow() == 1))) {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String promotion = """
+                        Your pawn can now promote! Please enter what you would like to promote it to:
+                        -Knight
+                        -Rook
+                        -Bishop
+                        -Queen
+                        >>>""";
+                System.out.print(promotion);
+                String answer = scanner.nextLine().trim().toLowerCase();
+
+                promotionType = switch (answer) {
+                    case "knight" -> KNIGHT;
+                    case "rook" -> ROOK;
+                    case "bishop" -> BISHOP;
+                    case "queen" -> QUEEN;
+                    default -> null;
+                };
+                if (promotionType != null) {
+                    break;
+                }
+
+                System.out.println("Error: Not a valid promotion type");
+            }
+        }
+        ChessMove chessMove = new ChessMove(start, end, promotionType);
+        return new MakeMoveCommand(chessMove, auth.authToken(), gameData.gameID());
     }
 
     private String resignRequest() throws Exception {
@@ -164,14 +195,10 @@ public class GameUI {
                 } else if (player == BLACK) {
                     boardPrint.print(BLACK, position, gameData.game().getBoard());
                 }
-                //System.out.print("5");
-                //printPrompt(gameState);
                 return "";
 
             } catch (FacadeException e) {
                 System.out.print("Error: Not a valid piece");
-                //System.out.print("6");
-                //printPrompt(gameState);
                 return "";
             }
 
@@ -247,7 +274,6 @@ public class GameUI {
             gameData = loadGameMessage.getGame();
             gameState = (gameData.game().getTeamTurn() == BLACK) ? TURN_BLACK : TURN_WHITE;
             printBoard();
-            System.out.print("9");
             printPrompt(gameState);
         } else if (messageType == NOTIFICATION) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
@@ -255,12 +281,10 @@ public class GameUI {
             if (notificationMessage.getMessage().contains("wins")) {
                 gameState = GAMEOVER;
             }
-            System.out.print("7");
             printPrompt(gameState);
         } else if (messageType == ERROR) {
             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
             System.out.print(errorMessage.getErrorMessage());
-            System.out.print("8");
             printPrompt(gameState);
         }
 
