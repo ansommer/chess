@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import datamodel.GameData;
@@ -112,43 +113,70 @@ public class GameService {
         serverMessage = new LoadGameMessage(gameData);
         String message = new Gson().toJson(serverMessage);
         connections.broadcast(session, message, gameData, null, ALL, gameID);
+        ChessPosition start = chessMove.getStartPosition();
+        ChessPosition end = chessMove.getEndPosition();
 
-        String notification = chessMove.getStartPosition().getColumn() + chessMove.getStartPosition().getRow() +
-                " moved to " + chessMove.getEndPosition().getColumn() + chessMove.getEndPosition().getRow();
+        String notification = String.format("%s %c%d moved to %c%d", username,
+                reverseGetPosition(start.getColumn()), start.getRow(),
+                reverseGetPosition(end.getColumn()), end.getRow());
+
+
         serverMessage = new NotificationMessage(notification);
         message = new Gson().toJson(serverMessage);
         connections.broadcast(session, message, gameData, notification, OTHERS, gameID);
+
         //if it's check, checkmate, or stalemate, a message is sent to everyone
-        //could I make a function here? Yes. Yes I could
-        if (game.isInCheckmate(BLACK)) {
-            notification = "Black is in checkmate!";
-            serverMessage = new NotificationMessage(notification);
-            message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL, gameID);
-        } else if (game.isInCheck(BLACK)) {
-            notification = "Black is in check!";
-            serverMessage = new NotificationMessage(notification);
-            message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL, gameID);
-        }
-        if (game.isInCheckmate(WHITE)) {
-            notification = "White is in checkmate!";
-            serverMessage = new NotificationMessage(notification);
-            message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL, gameID);
-        } else if (game.isInCheck(WHITE)) {
-            notification = "White is in check!";
-            serverMessage = new NotificationMessage(notification);
-            message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL, gameID);
-        }
-        if (game.isInStalemate(WHITE) || game.isInStalemate(BLACK)) {
-            notification = "Stalemate!";
-            serverMessage = new NotificationMessage(notification);
-            message = new Gson().toJson(serverMessage);
-            connections.broadcast(session, message, gameData, notification, ALL, gameID);
+        //idk if this will pass being so nested
+        if (!checkGameStatus(session, (game.isInCheckmate(BLACK)), "is in checkmate!", BLACK)) {
+            if (!checkGameStatus(session, (game.isInCheck(BLACK)), "is in check!", BLACK)) {
+                if (!checkGameStatus(session, (game.isInCheckmate(WHITE)), "is in checkmate!", WHITE)) {
+                    if (!checkGameStatus(session, (game.isInCheck(WHITE)), "is in check!", WHITE)) {
+                        checkGameStatus(session, (game.isInStalemate(WHITE) || game.isInStalemate(BLACK)),
+                                "Stalemate!", null);
+                    }
+                }
+            }
         }
 
+
+    }
+
+    private boolean checkGameStatus(Session session, boolean condition, String notification, ChessGame.TeamColor teamColor)
+            throws Exception {
+        String finalNotification;
+        if (teamColor != null) {
+            String user = (team.equals("white") && teamColor == WHITE) ? username : gameData.blackUsername();
+            finalNotification = user + " " + notification;
+        } else {
+            finalNotification = notification;
+        }
+        if (condition) {
+            serverMessage = new NotificationMessage(finalNotification);
+            String message = new Gson().toJson(serverMessage);
+            connections.broadcast(session, message, gameData, finalNotification, ALL, gameID);
+            return true;
+        }
+        return false;
+    }
+
+    private String positionToString(ChessPosition pos) throws Exception {
+        char col = reverseGetPosition(pos.getColumn()); // should be 1–8
+        int row = pos.getRow(); // should be 1–8
+        return "" + col + row;
+    }
+
+    public char reverseGetPosition(int col) throws Exception {
+        return switch (col) {
+            case 8 -> 'a';
+            case 7 -> 'b';
+            case 6 -> 'c';
+            case 5 -> 'd';
+            case 4 -> 'e';
+            case 3 -> 'f';
+            case 2 -> 'g';
+            case 1 -> 'h';
+            default -> throw new Exception("Invalid column number: " + col);
+        };
     }
 
     private void handleLeave(Session session, GameData gameData) throws Exception {
